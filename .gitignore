@@ -1,0 +1,36 @@
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.pytest_cache/
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+
+# Local logs and experiment trackers
+wandb/
+debug/
+visdom/
+
+# Training outputs and TensorBoard logs
+output/*
+!output/.gitkeep
+tensorboard/*
+!tensorboard/.gitkeep
+
+# Pretrained weights and trained checkpoints are kept outside Git.
+pretrained/*
+!pretrained/.gitkeep
+*.pth
+*.pth.tar
+*.pt
+*.ckpt
+*.onnx
+
+# Datasets and generated databases
+data/
+datasets/
+*.lmdb
