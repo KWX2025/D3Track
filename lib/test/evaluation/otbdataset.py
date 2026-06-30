@@ -4,14 +4,7 @@ from lib.test.utils.load_text import load_text
 
 
 class OTBDataset(BaseDataset):
-    """ OTB-2015 dataset
-    Publication:
-        Object Tracking Benchmark
-        Wu, Yi, Jongwoo Lim, and Ming-hsuan Yan
-        TPAMI, 2015
-        http://faculty.ucmerced.edu/mhyang/papers/pami15_tracking_benchmark.pdf
-    Download the dataset from http://cvlab.hanyang.ac.kr/tracker_benchmark/index.html
-    """
+    
     def __init__(self):
         super().__init__()
         self.base_path = self.env_settings.otb_path
@@ -36,7 +29,7 @@ class OTBDataset(BaseDataset):
 
         anno_path = '{}/{}'.format(self.base_path, sequence_info['anno_path'])
 
-        # NOTE: OTB has some weird annos which panda cannot handle
+        
         ground_truth_rect = load_text(str(anno_path), delimiter=(',', None), dtype=np.float64, backend='numpy')
 
         return Sequence(sequence_info['name'], frames, 'otb', ground_truth_rect[init_omit:,:],

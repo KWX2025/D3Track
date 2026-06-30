@@ -13,30 +13,18 @@ import numpy as np
 
 def trackerlist(name: str, parameter_name: str, dataset_name: str, run_ids = None, display_name: str = None,
                 result_only=False):
-    """Generate list of trackers.
-    args:
-        name: Name of tracking method.
-        parameter_name: Name of parameter file.
-        run_ids: A single or list of run_ids.
-        display_name: Name to be displayed in the result plots.
-    """
+    
     if run_ids is None or isinstance(run_ids, int):
         run_ids = [run_ids]
     return [Tracker(name, parameter_name, dataset_name, run_id, display_name, result_only) for run_id in run_ids]
 
 
 class Tracker:
-    """Wraps the tracker for evaluation and running purposes.
-    args:
-        name: Name of tracking method.
-        parameter_name: Name of parameter file.
-        run_id: The run id.
-        display_name: Name to be displayed in the result plots.
-    """
+    
 
     def __init__(self, name: str, parameter_name: str, dataset_name: str, run_id: int = None, display_name: str = None,
                  result_only=False, checkpoint_path=None, debug=False):
-        # runid改成要测试的epoch
+        
         assert run_id is None or isinstance(run_id, int)
 
         self.name = name
@@ -46,25 +34,25 @@ class Tracker:
         self.checkpoint_path = checkpoint_path
 
         if debug:
-            # 调取baseline的跟踪结果
+            
             self.baseline_resfile = {
-                # "rgbt234":"/home/zhaojiacong/all_result/tracking_result/attn_fusion/cross_attn_fusion_ep030/rgbt234/",
-                "rgbt234":"/home/zhaojiacong/all_result/tracking_result/ostrack_twobranch/vitb_256_mae_ce_32x4_ep300_ep084/rgbt234/",
-                "lashertestingset":"/home/zhaojiacong/all_result/tracking_result/ostrack_twobranch/vitb_256_mae_ce_32x4_ep300_ep084/lashertestingset/"
+                
+                "rgbt234":"",
+                "lashertestingset":""
             }
             for k in list(self.baseline_resfile.keys()):
                 if k in dataset_name.lower():
                     self.baseline_resfile = self.baseline_resfile[k]
                     break
             self.baseline_rect = dict()
-            # for seq_name in os.listdir(self.baseline_resfile):
-            #     res_path = os.path.join(self.baseline_resfile, seq_name)
-            #     seq_name = seq_name.split('.')[0].split('_')[-1]
-            #     self.baseline_rect[seq_name] = load_text(str(res_path), delimiter=['', '\t', ','], dtype=np.float64)
+            
+            
+            
+            
 
         self.params = self.get_parameters()
         self.run_id = self.params.cfg.TEST.EPOCH
-        # self.run_id = run_id
+        
 
         env = env_settings()
         if self.run_id is None:
@@ -87,13 +75,7 @@ class Tracker:
         return tracker
 
     def run_sequence(self, seq, debug=None):
-        """Run tracker on sequence.
-        args:
-            seq: Sequence to run the tracker on.
-            visualization: Set visualization flag (None means default value specified in the parameters).
-            debug: Set debug level (None means default value specified in the parameters).
-            multiobj_mode: Which mode to use for multiple objects.
-        """
+        
 
         params = self.params
 
@@ -103,7 +85,7 @@ class Tracker:
 
         params.debug = debug_
 
-        # Get init information
+        
         init_info = seq.init_info()
 
         tracker = self.create_tracker(params)
@@ -112,18 +94,18 @@ class Tracker:
         return output
 
     def _track_sequence(self, tracker, seq, init_info):
-        # Define outputs
-        # Each field in output is a list containing tracker prediction for each frame.
+        
+        
 
-        # In case of single object tracking mode:
-        # target_bbox[i] is the predicted bounding box for frame i
-        # time[i] is the processing time for frame i
+        
+        
+        
 
-        # In case of multi object tracking mode:
-        # target_bbox[i] is an OrderedDict, where target_bbox[i][obj_id] is the predicted box for target obj_id in
-        # frame i
-        # time[i] is either the processing time for frame i, or an OrderedDict containing processing times for each
-        # object in frame i
+        
+        
+        
+        
+        
 
         output = {'target_bbox': [],
                   'time': []}
@@ -138,14 +120,14 @@ class Tracker:
                 if key in tracker_out or val is not None:
                     output[key].append(val)
 
-        # Initialize
-        # image = self._read_image(seq.frames[0])
+        
+        
         image_v = self._read_image(seq.frames_v[0])
         image_i = self._read_image(seq.frames_i[0])
 
         start_time = time.time()
-        #out = tracker.initialize(image, init_info)
-        out = tracker.initialize(image_v, image_i, init_info) # Initialize network
+        
+        out = tracker.initialize(image_v, image_i, init_info) 
 
         if out is None:
             out = {}
@@ -160,11 +142,11 @@ class Tracker:
         _store_outputs(out, init_default)
         frame_num =0 
         for frame_path_v, frame_path_i in zip(seq.frames_v[1:], seq.frames_i[1:]):
-        #for frame_num, frame_path in enumerate(seq.frames[1:], start=1):
-            # image = self._read_image(frame_path)
+        
+            
 
             frame_num += 1
-            image_v = self._read_image(frame_path_v) # load each frame image
+            image_v = self._read_image(frame_path_v) 
             image_i = self._read_image(frame_path_i)
             
             start_time = time.time()
@@ -192,10 +174,7 @@ class Tracker:
         return output
 
     def run_video(self, videofilepath, optional_box=None, debug=None, visdom_info=None, save_results=False):
-        """Run the tracker with the vieofile.
-        args:
-            debug: Debug level.
-        """
+        
 
         params = self.get_parameters()
 
@@ -206,7 +185,7 @@ class Tracker:
 
         params.tracker_name = self.name
         params.param_name = self.parameter_name
-        # self._init_visdom(visdom_info, debug_)
+        
 
         multiobj_mode = getattr(params, 'multiobj_mode', getattr(self.tracker_class, 'multiobj_mode', 'default'))
 
@@ -219,7 +198,7 @@ class Tracker:
             raise ValueError('Unknown multi object mode {}'.format(multiobj_mode))
 
         assert os.path.isfile(videofilepath), "Invalid param {}".format(videofilepath)
-        ", videofilepath must be a valid videofile"
+        
 
         output_boxes = []
 
@@ -243,7 +222,7 @@ class Tracker:
             output_boxes.append(optional_box)
         else:
             while True:
-                # cv.waitKey()
+                
                 frame_disp = frame.copy()
 
                 cv.putText(frame_disp, 'Select target ROI and press ENTER', (20, 30), cv.FONT_HERSHEY_COMPLEX_SMALL,
@@ -263,7 +242,7 @@ class Tracker:
 
             frame_disp = frame.copy()
 
-            # Draw box
+            
             out = tracker.track(frame)
             state = [int(s) for s in out['target_bbox']]
             output_boxes.append(state)
@@ -279,7 +258,7 @@ class Tracker:
             cv.putText(frame_disp, 'Press q to quit', (20, 80), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
                        font_color, 1)
 
-            # Display the resulting frame
+            
             cv.imshow(display_name, frame_disp)
             key = cv.waitKey(1)
             if key == ord('q'):
@@ -297,7 +276,7 @@ class Tracker:
                 tracker.initialize(frame, _build_init_info(init_state))
                 output_boxes.append(init_state)
 
-        # When everything done, release the capture
+        
         cap.release()
         cv.destroyAllWindows()
 
@@ -313,7 +292,7 @@ class Tracker:
 
 
     def get_parameters(self):
-        """Get parameters."""
+        
         param_module = importlib.import_module('lib.test.parameter.{}'.format(self.name))
         params = param_module.parameters(self.parameter_name, self.checkpoint_path)
         return params
@@ -326,6 +305,5 @@ class Tracker:
             return decode_img(image_file[0], image_file[1])
         else:
             raise ValueError("type of image_file should be str or list")
-
 
 

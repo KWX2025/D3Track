@@ -49,9 +49,9 @@ MODEL:
   BACKBONE:
     TYPE: vit_base_patch16_224_ce
     STRIDE: 16
-    CE_LOC: []      # here we close it.
+    CE_LOC: []
     CE_KEEP_RATIO: [0.7, 0.7, 0.7]
-    CE_TEMPLATE_RANGE: 'CTR_POINT'  # choose between ALL, CTR_POINT, CTR_REC, GT_BOX
+    CE_TEMPLATE_RANGE: 'CTR_POINT'
   HEAD:
     TYPE: CENTER
     NUM_CHANNELS: 256
@@ -59,7 +59,7 @@ TRAIN:
   DFTrack_LOSS: DFTrack
   MASK_PROBABILITY: 1.      
   INPUT_MASK_RATIO: 0.25    
-  PARAM_KEY:   # set your learning rate and parameter you want to train.
+  PARAM_KEY:
   - [head,        0.00005]
   - [rgb_branch , 0.000005]
   - [tir_branch , 0.000005]
@@ -77,7 +77,7 @@ TRAIN:
   CONTENT_DISTILL_WEIGHT: 0.1
   STOP_CONTENT_GRADIENT: True
   STOP_STYLE_GRADIENT: False
-  STYLE_LOSS_TYPE: "channel"    # choose between channel, token
+  STYLE_LOSS_TYPE: "channel"
   CONTENT_LOSS_TYPE: "channel"
   GRAD_CLIP_NORM: 0.1
   LR: 0.00005
@@ -90,8 +90,36 @@ TRAIN:
   WEIGHT_DECAY: 0.0001
   AMP: False
 TEST:
-  EPOCH: 30           # select 25 or 30
+  EPOCH: 30
   SEARCH_FACTOR: 4.0
   SEARCH_SIZE: 256
   TEMPLATE_FACTOR: 2.0
   TEMPLATE_SIZE: 128
+  TEMPLATE_UPDATE:
+    INTERVAL_ST: 15
+    TAU_CONF_SCHED: 0.6
+    TAU_CONF_EVT: 0.66
+    TAU_PEAK_EVT: 1.20
+    TAU_IOU_EVT: 0.55
+    TAU_RED_EVT: 0.990
+    EVENT_WINDOW_M: 30
+    EVENT_QUANTILE_Q: 0.70
+    MIN_EVENT_HISTORY: 5
+    ADAPTIVE_EVENT_MARGIN: 1.20
+    ADAPTIVE_TAU_RED_EVT: 0.995
+    COOLDOWN_FRAMES: 8
+    BEST_EPS: 0.00
+    BEST_COOLDOWN: 10
+    BEST_FORCE_INTERVAL: 60
+    BEST_DECAY: 0.002
+    TAU_DIV_RED: 0.9
+    TAU_DIV_RED_STRICT: 0.94
+    TAU_DIV_Q_RATIO: 0.85
+    TAU_DIV_IOU: 0.60
+    DIVERSE_COOLDOWN_FRAMES: 10
+    ENABLE_LT_REFRESH: False
+    LT_INTERVAL: 240
+    LT_Q_GAIN: 1.7
+    LT_IOU_NEED: 0.70
+    HEATMAP_PEAK_TOPK: 5
+    VERBOSE_UPDATE_LOG: False

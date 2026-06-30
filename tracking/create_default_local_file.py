@@ -7,7 +7,7 @@ from lib.test.evaluation import create_default_local_file_ITP_test
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Create default local file on ITP or PAI')
-    parser.add_argument("--workspace_dir", type=str, required=True)  # workspace dir
+    parser.add_argument("--workspace_dir", type=str, required=True)  
     parser.add_argument("--data_dir", type=str, required=True)
     parser.add_argument("--save_dir", type=str, required=True)
     args = parser.parse_args()

@@ -16,7 +16,7 @@ class FocalLoss(nn.Module, ABC):
         negative_index = target.lt(1).float()
 
         negative_weights = torch.pow(1 - target, self.beta)
-        # clamp min value is set to 1e-12 to maintain the numerical stability
+        
         prediction = torch.clamp(prediction, 1e-12)
 
         positive_loss = torch.log(prediction) * torch.pow(1 - prediction, self.alpha) * positive_index
@@ -36,14 +36,7 @@ class FocalLoss(nn.Module, ABC):
 
 
 class LBHinge(nn.Module):
-    """Loss that uses a 'hinge' on the lower bound.
-    This means that for samples with a label value smaller than the threshold, the loss is zero if the prediction is
-    also smaller than that threshold.
-    args:
-        error_matric:  What base loss to use (MSE by default).
-        threshold:  Threshold to use for the hinge.
-        clip:  Clip the loss if it is above this value.
-    """
+    
     def __init__(self, error_metric=nn.MSELoss(), threshold=None, clip=None):
         super().__init__()
         self.error_metric = error_metric

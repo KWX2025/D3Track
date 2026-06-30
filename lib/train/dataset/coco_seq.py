@@ -9,47 +9,17 @@ from lib.train.admin import env_settings
 
 
 class MSCOCOSeq(BaseVideoDataset):
-    """ The COCO dataset. COCO is an image dataset. Thus, we treat each image as a sequence of length 1.
-
-    Publication:
-        Microsoft COCO: Common Objects in Context.
-        Tsung-Yi Lin, Michael Maire, Serge J. Belongie, Lubomir D. Bourdev, Ross B. Girshick, James Hays, Pietro Perona,
-        Deva Ramanan, Piotr Dollar and C. Lawrence Zitnick
-        ECCV, 2014
-        https://arxiv.org/pdf/1405.0312.pdf
-
-    Download the images along with annotations from http://cocodataset.org/#download. The root folder should be
-    organized as follows.
-        - coco_root
-            - annotations
-                - instances_train2014.json
-                - instances_train2017.json
-            - images
-                - train2014
-                - train2017
-
-    Note: You also have to install the coco pythonAPI from https://github.com/cocodataset/cocoapi.
-    """
+    
 
     def __init__(self, root=None, image_loader=jpeg4py_loader, data_fraction=None, split="train", version="2014"):
-        """
-        args:
-            root - path to the coco dataset.
-            image_loader (default_image_loader) -  The function to read the images. If installed,
-                                                   jpeg4py (https://github.com/ajkxyz/jpeg4py) is used by default. Else,
-                                                   opencv's imread is used.
-            data_fraction (None) - Fraction of images to be used. The images are selected randomly. If None, all the
-                                  images  will be used
-            split - 'train' or 'val'.
-            version - version of coco dataset (2014 or 2017)
-        """
+        
         root = env_settings().coco_dir if root is None else root
         super().__init__('COCO', root, image_loader)
 
         self.img_pth = os.path.join(root, 'images/{}{}/'.format(split, version))
         self.anno_path = os.path.join(root, 'annotations/instances_{}{}.json'.format(split, version))
 
-        # Load the COCO set.
+        
         self.coco_set = COCO(self.anno_path)
 
         self.cats = self.coco_set.cats
@@ -113,7 +83,7 @@ class MSCOCOSeq(BaseVideoDataset):
 
         mask = torch.Tensor(self.coco_set.annToMask(anno)).unsqueeze(dim=0)
 
-        '''2021.1.3 To avoid too small bounding boxes. Here we change the threshold to 50 pixels'''
+        
         valid = (bbox[:, 2] > 50) & (bbox[:, 3] > 50)
 
         visible = valid.clone().byte()
@@ -152,8 +122,8 @@ class MSCOCOSeq(BaseVideoDataset):
         return cat_dict_current['name']
 
     def get_frames(self, seq_id=None, frame_ids=None, anno=None):
-        # COCO is an image dataset. Thus we replicate the image denoted by seq_id len(frame_ids) times, and return a
-        # list containing these replicated images.
+        
+        
         frame = self._get_frames(seq_id)
 
         frame_list = [frame.copy() for _ in frame_ids]

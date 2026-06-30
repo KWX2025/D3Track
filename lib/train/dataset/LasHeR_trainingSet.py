@@ -16,7 +16,7 @@ class LasHeR_trainingSet(BaseVideoDataset):
         self.root = env_settings().lasher_dir if root is None else root
         super().__init__('LasHeR_trainingSet', root, image_loader)
 
-        # video_name for each sequence
+        
         self.sequence_list = ['2ndblkboy1_quezhen', '2ndrunningboy', 'abreastinnerboy', 'ajiandan_blkdog',
                               'ajiandan_boyleft2right', 'ajiandan_catwhite', 'basketballatright', 'basketballup',
                               'bike2', 'bikeafterwhitecar', 'bikeboy128', 'blkbagontheleftgirl', 'blkboy',
@@ -228,7 +228,7 @@ class LasHeR_trainingSet(BaseVideoDataset):
             self.sequence_list = random.sample(self.sequence_list, int(len(self.sequence_list) * data_fraction))
 
         self.attr = attr
-        with open('/media/ha/2T/datasets/lasher/trainingset/trainingsetList.txt') as f:
+        with open(os.path.join(self.root, 'trainingsetList.txt')) as f:
             attr_list = f.read().replace(' ', '').split(',')
         if attr is not None and isinstance(attr, str):
             assert attr in attr_list
@@ -266,13 +266,13 @@ class LasHeR_trainingSet(BaseVideoDataset):
                              low_memory=False).values
         return torch.tensor(gt)
 
-    # def _get_sequence_path(self, seq_id):
-    #     return os.path.join(self.root, self.sequence_list[seq_id])
+    
+    
 
     def get_sequence_info(self, seq_id):
-        # print('seq_id', seq_id)
+        
         seq_name = self.sequence_list[seq_id]
-        # print('seq_name', seq_name)
+        
         seq_path = os.path.join(self.root, seq_name)
         bbox = self._read_bb_anno(seq_path)
         valid = (bbox[:, 2] > 0) & (bbox[:, 3] > 0)
@@ -297,12 +297,12 @@ class LasHeR_trainingSet(BaseVideoDataset):
         frame_list_v = [self._get_frame_v(seq_path, f) for f in frame_ids]
         frame_list_i = [self._get_frame_i(seq_path, f) for f in frame_ids]
 
-        # print(frame_ids)
-        # print(len(frame_list_v),len(frame_list_i),len(frame_list))
-        # @print(len(frame_list_i))
-        frame_list = frame_list_v + frame_list_i  # 6
-        # print(len(frame_list))
-        # exit()
+        
+        
+        
+        frame_list = frame_list_v + frame_list_i  
+        
+        
         if seq_name not in self.sequence_list:
             print('warning!!!' * 100)
         if anno is None:
@@ -318,5 +318,5 @@ class LasHeR_trainingSet(BaseVideoDataset):
                                    'root_class': None,
                                    'motion_adverb': None})
 
-        # return frame_list_v, frame_list_i, anno_frames, object_meta
+        
         return frame_list, anno_frames, object_meta

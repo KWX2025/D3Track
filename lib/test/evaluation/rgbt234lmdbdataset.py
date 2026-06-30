@@ -5,7 +5,7 @@ import os
 from lib.utils.lmdb_utils import *
 
 class RGBT234LmdbDataset(BaseDataset):
-    # RGBt234 dataset
+    
     def __init__(self, attr=None):
         super().__init__()
         self.base_path = self.env_settings.lmdb_path
@@ -17,12 +17,12 @@ class RGBT234LmdbDataset(BaseDataset):
 
     def _read_bb_anno(self, seq_path):
         bb_anno_file = seq_path+'.init_lbl'
-        gt_str_list = decode_str(self.base_path, bb_anno_file)  # the last line is empty
-        gt_str_list = gt_str_list.split('\r\n')  if '\r\n' in gt_str_list else gt_str_list.split('\n')## the last line is empty
+        gt_str_list = decode_str(self.base_path, bb_anno_file)  
+        gt_str_list = gt_str_list.split('\r\n')  if '\r\n' in gt_str_list else gt_str_list.split('\n')
         while gt_str_list[-1]=='':
             del gt_str_list[-1]
         gt_list = [list(map(float, line.split(','))) for line in gt_str_list]
-        # gt_list = [np.fromstring(line, sep=',') for line in gt_str_list]
+        
         gt_arr = np.array(gt_list).astype(np.float32)
         return gt_arr
     
@@ -34,7 +34,7 @@ class RGBT234LmdbDataset(BaseDataset):
         frames_v = [[self.base_path, sequence_path+'.visible.'+str(i)] for i in range(ground_truth_rect.shape[0])]
         frames_i = [[self.base_path, sequence_path+'.infrared.'+str(i)] for i in range(ground_truth_rect.shape[0])]
         
-        # Convert gt
+        
         if ground_truth_rect.shape[1] > 4:
             gt_x_all = ground_truth_rect[:, [0, 2, 4, 6]]
             gt_y_all = ground_truth_rect[:, [1, 3, 5, 7]]
@@ -303,7 +303,7 @@ class RGBT234LmdbDataset(BaseDataset):
             sequence_info["name"] = sequence_list[i] 
             sequence_info["path"] = self.key_root + sequence_info["name"]
             sequence_info["anno_path"] = sequence_info["path"]+'.init_lbl'
-            #sequence_info["object_class"] = 'person'
+            
             sequence_info_list.append(sequence_info)
         return sequence_info_list
     

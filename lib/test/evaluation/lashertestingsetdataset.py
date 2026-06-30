@@ -5,7 +5,7 @@ import os
 
 
 class LasHeRtestingSetDataset(BaseDataset):
-    # LasHeR dataset
+    
     def __init__(self):
         super().__init__()
         self.base_path = self.env_settings.lasher_path
@@ -25,7 +25,7 @@ class LasHeRtestingSetDataset(BaseDataset):
         img_list_i = sorted([p for p in os.listdir(os.path.join(sequence_path, 'infrared')) if
                              os.path.splitext(p)[1] in ['.jpg', '.png', '.bmp']])
         frames_i = [os.path.join(sequence_path, 'infrared', img) for img in img_list_i]
-        # Convert gt
+        
         if ground_truth_rect.shape[1] > 4:
             gt_x_all = ground_truth_rect[:, [0, 2, 4, 6]]
             gt_y_all = ground_truth_rect[:, [1, 3, 5, 7]]
@@ -41,7 +41,7 @@ class LasHeRtestingSetDataset(BaseDataset):
     def __len__(self):
         return len(self.sequence_info_list)
 
-    def _get_sequence_list(self):  # LasHeR_better
+    def _get_sequence_list(self):  
         sequence_list = ['10runone', '11leftboy', '11runtwo', '1blackteacher', '1boycoming', '1stcol4thboy',
                          '1strowleftboyturning', '1strowrightdrillmaster', '1strowrightgirl3540', '2girl', '2girlup',
                          '2runseven', '3bike1', '3men', '3pinkleft', '3rdfatboy', '3rdgrouplastboy', '3thmoto', '4men',
@@ -101,6 +101,6 @@ class LasHeRtestingSetDataset(BaseDataset):
             sequence_info["name"] = sequence_list[i]
             sequence_info["path"] = self.base_path + sequence_info["name"]
             sequence_info["anno_path"] = sequence_info["path"] + '/init.txt'
-            # sequence_info["object_class"] = 'person'
+            
             sequence_info_list.append(sequence_info)
         return sequence_info_list

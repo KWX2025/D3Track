@@ -10,33 +10,21 @@ from .base_video_dataset import BaseVideoDataset
 from lib.train.data import jpeg4py_loader
 from lib.train.admin import env_settings
 
-'''2021.1.16 Gok10k for loading lmdb dataset'''
+
 from lib.utils.lmdb_utils import *
 
 
 class Got10k_lmdb(BaseVideoDataset):
 
     def __init__(self, root=None, image_loader=jpeg4py_loader, split=None, seq_ids=None, data_fraction=None):
-        """
-        args:
-            root - path to the got-10k training data. Note: This should point to the 'train' folder inside GOT-10k
-            image_loader (jpeg4py_loader) -  The function to read the images. jpeg4py (https://github.com/ajkxyz/jpeg4py)
-                                            is used by default.
-            split - 'train' or 'val'. Note: The validation split here is a subset of the official got-10k train split,
-                    not NOT the official got-10k validation split. To use the official validation split, provide that as
-                    the root folder instead.
-            seq_ids - List containing the ids of the videos to be used for training. Note: Only one of 'split' or 'seq_ids'
-                        options can be used at the same time.
-            data_fraction - Fraction of dataset to be used. The complete dataset is used by default
-            use_lmdb - whether the dataset is stored in lmdb format
-        """
+        
         root = env_settings().got10k_lmdb_dir if root is None else root
         super().__init__('GOT10k_lmdb', root, image_loader)
 
-        # all folders inside the root
+        
         self.sequence_list = self._get_sequence_list()
 
-        # seq_id is the index of the folder inside the got10k root path
+        
         if split is not None:
             if seq_ids is not None:
                 raise ValueError('Cannot set both split_name and seq_ids.')
@@ -122,20 +110,20 @@ class Got10k_lmdb(BaseVideoDataset):
 
     def _read_bb_anno(self, seq_path):
         bb_anno_file = os.path.join(seq_path, "groundtruth.txt")
-        gt_str_list = decode_str(self.root, bb_anno_file).split('\n')[:-1]  # the last line in got10k is empty
+        gt_str_list = decode_str(self.root, bb_anno_file).split('\n')[:-1]  
         gt_list = [list(map(float, line.split(','))) for line in gt_str_list]
         gt_arr = np.array(gt_list).astype(np.float32)
 
         return torch.tensor(gt_arr)
 
     def _read_target_visible(self, seq_path):
-        # full occlusion and out_of_view files
+        
         occlusion_file = os.path.join(seq_path, "absence.label")
         cover_file = os.path.join(seq_path, "cover.label")
-        # Read these files
-        occ_list = list(map(int, decode_str(self.root, occlusion_file).split('\n')[:-1]))  # the last line in got10k is empty
+        
+        occ_list = list(map(int, decode_str(self.root, occlusion_file).split('\n')[:-1]))  
         occlusion = torch.ByteTensor(occ_list)
-        cover_list = list(map(int, decode_str(self.root, cover_file).split('\n')[:-1]))  # the last line in got10k is empty
+        cover_list = list(map(int, decode_str(self.root, cover_file).split('\n')[:-1]))  
         cover = torch.ByteTensor(cover_list)
 
         target_visible = ~occlusion & (cover>0).byte()
@@ -157,7 +145,7 @@ class Got10k_lmdb(BaseVideoDataset):
         return {'bbox': bbox, 'valid': valid, 'visible': visible, 'visible_ratio': visible_ratio}
 
     def _get_frame_path(self, seq_path, frame_id):
-        return os.path.join(seq_path, '{:08}.jpg'.format(frame_id+1))    # frames start from 1
+        return os.path.join(seq_path, '{:08}.jpg'.format(frame_id+1))    
 
     def _get_frame(self, seq_path, frame_id):
         return decode_img(self.root, self._get_frame_path(seq_path, frame_id))

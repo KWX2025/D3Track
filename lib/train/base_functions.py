@@ -1,6 +1,6 @@
 import torch
 from torch.utils.data.distributed import DistributedSampler
-# datasets related
+
 from lib.train.dataset import Lasot, Got10k, MSCOCOSeq, ImagenetVID, TrackingNet, LasHeR_trainingSet, RGBT234, \
     LasHeR_testingSet, LasHeR_trainingSet_lmdb, RGBT234_lmdb
 from lib.train.dataset import Lasot_lmdb, Got10k_lmdb, MSCOCOSeq_lmdb, ImagenetVID_lmdb, TrackingNet_lmdb, VTUAV
@@ -31,7 +31,7 @@ def names2datasets(name_list: list, settings, image_loader, attr=None):
     assert isinstance(name_list, list)
     datasets = []
     for name in name_list:
-        # print('name',name)
+        
         assert name in ['LasHeR_testingSet', 'RGBT234', "LasHeR_trainingSet", 'LasHeR', "LASOT", "GOT10K_vottrain", \
                         "GOT10K_votval", "GOT10K_train_full", "COCO17", "VID", "TRACKINGNET", "VTUAV", "vtuav",
                         "VTUAV_test_SL"]
@@ -103,13 +103,13 @@ def names2datasets(name_list: list, settings, image_loader, attr=None):
                 print("Building TrackingNet from lmdb")
                 datasets.append(TrackingNet_lmdb(settings.env.trackingnet_lmdb_dir, image_loader=image_loader))
             else:
-                # raise ValueError("NOW WE CAN ONLY USE TRACKINGNET FROM LMDB")
+                
                 datasets.append(TrackingNet(settings.env.trackingnet_dir, image_loader=image_loader))
     return datasets
 
 
 def build_dataloaders(cfg, settings):
-    # Data transform
+    
     transform_joint = tfm.Transform(tfm.ToGrayscale(probability=0.05),
                                     tfm.RandomHorizontalFlip(probability=0.5))
 
@@ -120,7 +120,7 @@ def build_dataloaders(cfg, settings):
     transform_val = tfm.Transform(tfm.ToTensor(),
                                   tfm.Normalize(mean=cfg.DATA.MEAN, std=cfg.DATA.STD))
 
-    # The tracking pairs processing module
+    
     output_sz = settings.output_sz
     search_area_factor = settings.search_area_factor
 
@@ -142,7 +142,7 @@ def build_dataloaders(cfg, settings):
                                                           joint_transform=transform_joint,
                                                           settings=settings)
 
-    # Train sampler and loader
+    
     settings.num_template = getattr(cfg.DATA.TEMPLATE, "NUMBER", 1)
     settings.num_search = getattr(cfg.DATA.SEARCH, "NUMBER", 1)
     sampler_mode = getattr(cfg.DATA, "SAMPLER_MODE", "causal")
@@ -167,7 +167,7 @@ def build_dataloaders(cfg, settings):
     loader_train = LTRLoader('train', dataset_train, training=True, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=True,
                              num_workers=cfg.TRAIN.NUM_WORKER, drop_last=True, stack_dim=1, sampler=train_sampler)
 
-    # Validation samplers and loaders
+    
     attr = getattr(cfg.DATA.VAL, 'CHALLENGE', None)
     dataset_val = sampler.TrackingSampler(
         datasets=names2datasets(cfg.DATA.VAL.DATASETS_NAME, settings, opencv_loader, attr=attr),
@@ -216,9 +216,9 @@ def get_optimizer_scheduler(net, cfg):
                     print(n)
 
         elif isinstance(param_key, list):
-            # param need to train
+            
             fintune_weight = lambda name: sum([1 for k, l in param_key if (k in name or k == '>all')]) > 0
-            # param belong something
+            
             fintune_weight_p = lambda name: sum([1 for k, l in param_key if k in name]) > 0
             fintune_weight_key = lambda name, key: 1 if (
                         key in name or (key == '>all' and not fintune_weight_p(name))) else 0
@@ -238,7 +238,7 @@ def get_optimizer_scheduler(net, cfg):
                 else:
                     print(n)
 
-    # ostrack
+    
     else:
         param_dicts = [
             {"params": [p for n, p in net.named_parameters() if "backbone" not in n and p.requires_grad]},
@@ -253,7 +253,7 @@ def get_optimizer_scheduler(net, cfg):
                 if p.requires_grad:
                     print(n)
 
-    # 选择优化器
+    
     if cfg.TRAIN.OPTIMIZER == "ADAMW":
         optimizer = torch.optim.AdamW(param_dicts, lr=cfg.TRAIN.LR,
                                       weight_decay=cfg.TRAIN.WEIGHT_DECAY)
@@ -266,9 +266,9 @@ def get_optimizer_scheduler(net, cfg):
         lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer,
                                                             milestones=cfg.TRAIN.SCHEDULER.MILESTONES,
                                                             gamma=cfg.TRAIN.SCHEDULER.GAMMA)
-    elif cfg.TRAIN.SCHEDULER.TYPE == "CosineLR":  # warm up 加 余弦退火
+    elif cfg.TRAIN.SCHEDULER.TYPE == "CosineLR":  
         lr_scheduler = timm.scheduler.CosineLRScheduler(optimizer=optimizer,
-                                                        t_initial=cfg.TRAIN.EPOCH + 1,  # 加1保证最后一个epoch学习率不为0
+                                                        t_initial=cfg.TRAIN.EPOCH + 1,  
                                                         lr_min=cfg.TRAIN.SCHEDULER.LR_MIN,
                                                         warmup_t=cfg.TRAIN.SCHEDULER.WARMUP_T,
                                                         warmup_lr_init=cfg.TRAIN.SCHEDULER.WARMUP_LR_INIT)

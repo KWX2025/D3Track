@@ -5,11 +5,9 @@ from lib.test.evaluation import get_dataset, trackerlist
 
 
 def parse_args():
-    """
-    args for evaluation.
-    """
+    
     parser = argparse.ArgumentParser(description='Parse args for training')
-    # for train
+    
     parser.add_argument('--script', type=str, help='training script name')
     parser.add_argument('--config', type=str, default='baseline', help='yaml configure file name')
 

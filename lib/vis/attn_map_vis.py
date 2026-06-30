@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 
 def recover_and_tomap(raw_map, global_index, vis='st', default_val=0., upsample=True):
-    # raw_map: H,W
-    # global_index: 1, N
+    
+    
     S_size = 256
     N = int(S_size**0.5)
     T_size = 64
@@ -28,9 +28,9 @@ def recover_and_tomap(raw_map, global_index, vis='st', default_val=0., upsample=
 
 
 def attn_on_image(attn_map:np.ndarray, image:np.ndarray):
-    # heat_map=np.uint8(255*attn_map)
-    # heat_map=cv2.applyColorMap(heat_map, cv2.COLORMAP_JET)
-    # return heat_map*0.2+image
+    
+    
+    
     heat_map=np.uint8(255*attn_map/attn_map.max())
     heat_map=cv2.applyColorMap(heat_map, cv2.COLORMAP_JET)
     heat_map = cv2.cvtColor(heat_map, cv2.COLOR_RGB2BGR)

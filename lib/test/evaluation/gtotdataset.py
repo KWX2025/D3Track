@@ -3,7 +3,7 @@ from lib.test.evaluation.data import Sequence,Sequence_RGBT,  BaseDataset, Seque
 from lib.test.utils.load_text import load_text
 import os
 class GTOTDataset(BaseDataset):
-    # GTOT dataset
+    
     def __init__(self):
         super().__init__()
         self.base_path = self.env_settings.gtot_path
@@ -21,7 +21,7 @@ class GTOTDataset(BaseDataset):
         
         img_list_i = sorted([p for p in os.listdir(os.path.join(sequence_path, 'i')) if os.path.splitext(p)[1] in ['.jpg','.png','.bmp']])
         frames_i = [os.path.join(sequence_path, 'i', img) for img in img_list_i]
-        # Convert gt
+        
         if ground_truth_rect.shape[1] > 4:
             gt_x_all = ground_truth_rect[:, [0, 2, 4, 6]]
             gt_y_all = ground_truth_rect[:, [1, 3, 5, 7]]
@@ -44,14 +44,14 @@ class GTOTDataset(BaseDataset):
             sequence_info = {}
             sequence_info["name"] = sequence_list[i] 
             sequence_info["path"] = self.base_path+sequence_info["name"]
-            #sequence_info["startFrame"] = int('1')
-            #print(end_frame[i])
-            #sequence_info["endFrame"] = end_frame[i]
+            
+            
+            
                 
-            #sequence_info["nz"] = int('6')
-            #sequence_info["ext"] = 'jpg'
+            
+            
             sequence_info["anno_path"] = sequence_info["path"]+'/init.txt'
-            #sequence_info["object_class"] = 'person'
+            
             sequence_info_list.append(sequence_info)
         return sequence_info_list
     

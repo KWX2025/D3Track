@@ -5,10 +5,10 @@ from collections import OrderedDict
 
 
 class TensorDict(OrderedDict):
-    """Container mainly used for dicts of torch tensors. Extends OrderedDict with pytorch functionality."""
+    
 
     def concat(self, other):
-        """Concatenates two dicts without copying internal data."""
+        
         return TensorDict(self, **other)
 
     def copy(self):
@@ -37,7 +37,7 @@ class TensorDict(OrderedDict):
 
 
 class TensorList(list):
-    """Container mainly used for lists of torch tensors. Extends lists with pytorch functionality."""
+    
 
     def __init__(self, list_of_tensors = None):
         if list_of_tensors is None:
@@ -230,7 +230,7 @@ def tensor_operation(op):
             if islist(args[0]):
                 return TensorList([op(a, **kwargs) for a in args[0]])
         else:
-            # Multiple operands, assume max two
+            
             if islist(args[0]) and islist(args[1]):
                 return TensorList([op(a, b, *args[2:], **kwargs) for a, b in zip(*args[:2])])
             if islist(args[0]):
@@ -238,7 +238,7 @@ def tensor_operation(op):
             if islist(args[1]):
                 return TensorList([op(args[0], b, *args[2:], **kwargs) for b in args[1]])
 
-        # None of the operands are lists
+        
         return op(*args, **kwargs)
 
     return oplist

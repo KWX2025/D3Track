@@ -13,14 +13,7 @@ from lib.utils.lmdb_utils import decode_img, decode_str
 
 
 def list_sequences(root):
-    """ Lists all the videos in the input set_ids. Returns a list of tuples (set_id, video_name)
-
-    args:
-        root: Root directory to TrackingNet
-
-    returns:
-        list - list of tuples (set_id, video_name) containing the set_id and video_name for each sequence
-    """
+    
     fname = os.path.join(root, "seq_list.json")
     with open(fname, "r") as f:
         sequence_list = json.loads(f.read())
@@ -28,26 +21,9 @@ def list_sequences(root):
 
 
 class TrackingNet_lmdb(BaseVideoDataset):
-    """ TrackingNet dataset.
-
-    Publication:
-        TrackingNet: A Large-Scale Dataset and Benchmark for Object Tracking in the Wild.
-        Matthias Mueller,Adel Bibi, Silvio Giancola, Salman Al-Subaihi and Bernard Ghanem
-        ECCV, 2018
-        https://ivul.kaust.edu.sa/Documents/Publications/2018/TrackingNet%20A%20Large%20Scale%20Dataset%20and%20Benchmark%20for%20Object%20Tracking%20in%20the%20Wild.pdf
-
-    Download the dataset using the toolkit https://github.com/SilvioGiancola/TrackingNet-devkit.
-    """
+    
     def __init__(self, root=None, image_loader=jpeg4py_loader, set_ids=None, data_fraction=None):
-        """
-        args:
-            root        - The path to the TrackingNet folder, containing the training sets.
-            image_loader (jpeg4py_loader) -  The function to read the images. jpeg4py (https://github.com/ajkxyz/jpeg4py)
-                                            is used by default.
-            set_ids (None) - List containing the ids of the TrackingNet sets to be used for training. If None, all the
-                            sets (0 - 11) will be used.
-            data_fraction - Fraction of dataset to be used. The complete dataset is used by default
-        """
+        
         root = env_settings().trackingnet_lmdb_dir if root is None else root
         super().__init__('TrackingNet_lmdb', root, image_loader)
 
@@ -56,8 +32,8 @@ class TrackingNet_lmdb(BaseVideoDataset):
 
         self.set_ids = set_ids
 
-        # Keep a list of all videos. Sequence list is a list of tuples (set_id, video_name) containing the set_id and
-        # video_name for each sequence
+        
+        
         self.sequence_list = list_sequences(self.root)
 
         if data_fraction is not None:
@@ -65,7 +41,7 @@ class TrackingNet_lmdb(BaseVideoDataset):
 
         self.seq_to_class_map, self.seq_per_class = self._load_class_info()
 
-        # we do not have the class_lists for the tracking net
+        
         self.class_list = list(self.seq_per_class.keys())
         self.class_list.sort()
 

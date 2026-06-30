@@ -13,16 +13,7 @@ from lib.test.evaluation.tracker import Tracker
 
 def run_tracker(tracker_name, tracker_param, run_id=None, dataset_name='otb', sequence=None, debug=0, threads=0,
                 num_gpus=8):
-    """Run tracker on sequence or dataset.
-    args:
-        tracker_name: Name of tracking method.
-        tracker_param: Name of parameter file.
-        run_id: The run id.
-        dataset_name: Name of dataset (otb, nfs, uav, tpl, vot, tn, gott, gotv, lasot).
-        sequence: Sequence number or name.
-        debug: Debug level.
-        threads: Number of threads.
-    """
+    
 
     dataset = get_dataset(*dataset_name)
 

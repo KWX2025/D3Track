@@ -8,7 +8,7 @@ from lib.vis.visdom_cus import Visdom
 
 
 class BaseTracker:
-    """Base class for all trackers."""
+    
 
     def __init__(self, params):
         self.params = params
@@ -18,11 +18,11 @@ class BaseTracker:
         return False
 
     def initialize(self, image, info: dict) -> dict:
-        """Overload this function in your tracker. This should initialize the model."""
+        
         raise NotImplementedError
 
     def track(self, image, info: dict = None) -> dict:
-        """Overload this function in your tracker. This should track in the frame and update the model."""
+        
         raise NotImplementedError
 
     def visdom_draw_tracking(self, image, box, segmentation=None):
@@ -36,9 +36,9 @@ class BaseTracker:
             self.visdom.register((image, *box, segmentation), 'Tracking', 1, 'Tracking')
 
     def transform_bbox_to_crop(self, box_in, resize_factor, device, box_extract=None, crop_type='template'):
-        # box_in: list [x1, y1, w, h], not normalized
-        # box_extract: same as box_in
-        # out bbox: Torch.tensor [1, 1, 4], x1y1wh, normalized
+        
+        
+        
         if crop_type == 'template':
             crop_sz = torch.Tensor([self.params.template_size, self.params.template_size])
         elif crop_type == 'search':
@@ -66,12 +66,12 @@ class BaseTracker:
                 self.visdom = Visdom(debug, {'handler': self._visdom_ui_handler, 'win_id': 'Tracking'},
                                      visdom_info=visdom_info)
 
-                # # Show help
-                # help_text = 'You can pause/unpause the tracker by pressing ''space'' with the ''Tracking'' window ' \
-                #             'selected. During paused mode, you can track for one frame by pressing the right arrow key.' \
-                #             'To enable/disable plotting of a data block, tick/untick the corresponding entry in ' \
-                #             'block list.'
-                # self.visdom.register(help_text, 'text', 1, 'Help')
+                
+                
+                
+                
+                
+                
             except:
                 time.sleep(0.5)
                 print('!!! WARNING: Visdom could not start, so using matplotlib visualization instead !!!\n'

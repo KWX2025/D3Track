@@ -34,10 +34,10 @@ def transform_got10k(tracker_name, cfg_name):
                 os.makedirs(seq_dir)
             dest_path = os.path.join(seq_dir, item)
             os.system("cp %s %s" % (src_path, dest_path))
-    # make zip archive
+    
     shutil.make_archive(src_dir, "zip", src_dir)
     shutil.make_archive(dest_dir, "zip", dest_dir)
-    # Remove the original files
+    
     shutil.rmtree(src_dir)
     shutil.rmtree(dest_dir)
 

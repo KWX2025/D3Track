@@ -89,7 +89,7 @@ class VisHeatmap(VisBase):
             self.raw_data = [data, kwargs]
         else:
             self.raw_data = [data]
-        # self.raw_data = data
+        
 
     def draw_data(self):
         if len(self.raw_data) == 2:
@@ -97,7 +97,7 @@ class VisHeatmap(VisBase):
         else:
             self.visdom.heatmap(self.raw_data[0].clone(), opts={'title': self.title}, win=self.title)
 
-        # self.visdom.heatmap(self.raw_data.clone(), opts={'title': self.title}, win=self.title)
+        
 
 
 class VisFeaturemap(VisBase):
@@ -145,15 +145,7 @@ class VisAttentionmap(VisBase):
         self.draw_data()
 
     def save_data(self, data, idxs, tensor_shape, mode='max', pad=0., upsample=8):
-        """
-        data: the raw attention map. (1,hn,H,W)
-        idxs: the keep token index. LongTensor.
-        tensor_shape: the initial Height and Weight. (rH,rW)
-        mode: 'max' means choose the largest value in the W dimension,
-            'mean' means choosing the average of W dimensions.
-        pad: Empty value.
-        upsample: upsampling multiplier, default is 'bilinear'.
-        """
+        
         length = tensor_shape[0]*tensor_shape[1]
         raw_data = torch.ones([length]).cuda() * pad
 
@@ -197,7 +189,7 @@ class VisCostVolume(VisBase):
     def show_cost_volume(self):
         data = self.raw_data.clone()
 
-        # data_perm = data.permute(2, 0, 3, 1).contiguous()
+        
         data_perm = data.permute(0, 2, 1, 3).contiguous()
         if self.flip:
             data_perm = data_perm.permute(2, 3, 0, 1).contiguous()
@@ -217,7 +209,7 @@ class VisCostVolume(VisBase):
     def show_cost_volume_slice(self):
         slice_pos = self.slice_pos
 
-        # slice_pos: [row, col]
+        
         cost_volume_data = self.raw_data.clone()
 
         if self.flip:
@@ -253,10 +245,10 @@ class VisCostVolumeUI(VisBase):
                 self.zoom_mode = not self.zoom_mode
                 zoom_toggled = True
 
-        # Update image
+        
         self.show_image()
 
-        # Update cost volumes
+        
         for block_title, block in self.registered_blocks.items():
             if isinstance(block, VisCostVolume):
                 block.set_zoom_pos(self.zoom_pos)
@@ -278,7 +270,7 @@ class VisCostVolumeUI(VisBase):
         stride_r = int(data.shape[1] / self.feat_shape[0])
         stride_c = int(data.shape[2] / self.feat_shape[1])
 
-        # Draw grid
+        
         data[:, list(range(0, data.shape[1], stride_r)), :] = 0
         data[:, :, list(range(0, data.shape[2], stride_c))] = 0
 
@@ -311,7 +303,7 @@ class VisCostVolumeUI(VisBase):
         self.visdom.image(data, opts={'title': self.title}, win=self.title)
 
     def save_data(self, data):
-        # Ignore feat shape
+        
         data = data[0]
         data = data.float()
         self.raw_data = data
@@ -395,7 +387,7 @@ class VisTracking(VisBase):
                 boxes.append(torch.Tensor(bm))
                 continue
             if len(bm.shape) > 1:
-                # Binarize segmentation if a float tensor is provided
+                
                 if bm.dtype != np.uint8:
                     bm = (bm > 0.5).astype(np.uint8)
                 masks.append(bm)
@@ -417,7 +409,7 @@ class VisTracking(VisBase):
             for i, mask in enumerate(self.raw_data[2]):
                 self.raw_data[2][i] = cv2.resize(mask, None, fx=resize_factor, fy=resize_factor)
 
-        # if box has score
+        
         scores = None
         if self.raw_data[1][0].shape[0] == 5:
             scores = [box[4].item() for box in self.raw_data[1]]
@@ -426,7 +418,7 @@ class VisTracking(VisBase):
         boxes = [resize_factor * b.clone() for b in self.raw_data[1]]
 
         for i, disp_rect in enumerate(boxes):
-            # color = ((255 * ((i % 3) > 0)), 255 * ((i + 1) % 2), (255 * (i % 5)) // 4)
+            
             color = index_to_color(i % 7)
             cv2.rectangle(disp_image,
                           (int(disp_rect[0]), int(disp_rect[1])),
@@ -437,12 +429,12 @@ class VisTracking(VisBase):
         for i, mask in enumerate(self.raw_data[2], 1):
             disp_image = overlay_mask(disp_image, mask * i)
 
-        # import os
-        # write_img = disp_image.copy()
-        # write_img = write_img[:, :, ::-1]
-        # # cv2.imwrite(os.path.join('/home/yebotao/test', str(self.count).zfill(3) + '.jpg'), write_img)
-        # cv2.imwrite(os.path.join('/home/yebotao/test', self.raw_data[3]['caption'].split('_')[-1] + '.jpg'), write_img)
-        # self.count += 1
+        
+        
+        
+        
+        
+        
 
         disp_image = numpy_to_torch(disp_image).squeeze(0)
         disp_image = disp_image.float()
@@ -550,5 +542,5 @@ class Visdom:
                 self.registered_blocks[title] = VisAttentionmap(self.visdom, show_data, title)
             else:
                 raise ValueError('Visdom Error: Unknown data mode {}'.format(mode))
-        # Update
+        
         self.registered_blocks[title].update(data, **kwargs)

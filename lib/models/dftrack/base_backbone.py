@@ -14,7 +14,7 @@ class BaseBackbone(nn.Module):
     def __init__(self):
         super().__init__()
 
-        # for original ViT
+        
         self.pos_embed = None
         self.img_size = [224, 224]
         self.patch_size = 16
@@ -44,7 +44,7 @@ class BaseBackbone(nn.Module):
         self.return_inter = cfg.MODEL.RETURN_INTER
         self.add_sep_seg = cfg.MODEL.BACKBONE.SEP_SEG
 
-        # resize patch embedding
+        
         if new_patch_size != self.patch_size:
             print('Inconsistent Patch Size With The Pretrained Weights, Interpolate The Weight!')
             old_patch_embed = {}
@@ -59,21 +59,21 @@ class BaseBackbone(nn.Module):
             self.patch_embed.proj.bias = old_patch_embed['proj.bias']
             self.patch_embed.proj.weight = old_patch_embed['proj.weight']
 
-        # for patch embedding
+        
         patch_pos_embed = self.pos_embed[:, patch_start_index:, :]
         patch_pos_embed = patch_pos_embed.transpose(1, 2)
         B, E, Q = patch_pos_embed.shape
         P_H, P_W = self.img_size[0] // self.patch_size, self.img_size[1] // self.patch_size
         patch_pos_embed = patch_pos_embed.view(B, E, P_H, P_W)
 
-        # for search region
+        
         H, W = search_size
         new_P_H, new_P_W = H // new_patch_size, W // new_patch_size
         search_patch_pos_embed = nn.functional.interpolate(patch_pos_embed, size=(new_P_H, new_P_W), mode='bicubic',
                                                            align_corners=False)
         search_patch_pos_embed = search_patch_pos_embed.flatten(2).transpose(1, 2)
 
-        # for template region
+        
         H, W = template_size
         new_P_H, new_P_W = H // new_patch_size, W // new_patch_size
         template_patch_pos_embed = nn.functional.interpolate(patch_pos_embed, size=(new_P_H, new_P_W), mode='bicubic',
@@ -83,20 +83,20 @@ class BaseBackbone(nn.Module):
         self.pos_embed_z = nn.Parameter(template_patch_pos_embed)
         self.pos_embed_x = nn.Parameter(search_patch_pos_embed)
 
-        # for cls token (keep it but not used)
+        
         if self.add_cls_token and patch_start_index > 0:
             cls_pos_embed = self.pos_embed[:, 0:1, :]
             self.cls_pos_embed = nn.Parameter(cls_pos_embed)
 
-        # separate token and segment token
+        
         if self.add_sep_seg:
             self.template_segment_pos_embed = nn.Parameter(torch.zeros(1, 1, self.embed_dim))
             self.template_segment_pos_embed = trunc_normal_(self.template_segment_pos_embed, std=.02)
             self.search_segment_pos_embed = nn.Parameter(torch.zeros(1, 1, self.embed_dim))
             self.search_segment_pos_embed = trunc_normal_(self.search_segment_pos_embed, std=.02)
 
-        # self.cls_token = None
-        # self.pos_embed = None
+        
+        
 
         if self.return_inter:
             for i_layer in self.fpn_stage:
@@ -140,16 +140,7 @@ class BaseBackbone(nn.Module):
         return self.norm(x), aux_dict
 
     def forward(self, z, x, **kwargs):
-        """
-        Joint feature extraction and relation modeling for the basic ViT backbone.
-        Args:
-            z (torch.Tensor): template feature, [B, C, H_z, W_z]
-            x (torch.Tensor): search region feature, [B, C, H_x, W_x]
-
-        Returns:
-            x (torch.Tensor): merged template and search region feature, [B, L_z+L_x, C]
-            attn : None
-        """
+        
         x, aux_dict = self.forward_features(z, x,)
 
         return x, aux_dict

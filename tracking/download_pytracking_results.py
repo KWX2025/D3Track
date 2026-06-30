@@ -55,19 +55,7 @@ def _download_file(file_id, path):
 
 
 def download_results(download_path, trackers='pytracking'):
-    """
-    Script to automatically download tracker results for PyTracking.
-    args:
-        download_path - Directory where the zipped results are downloaded
-        trackers - Tracker results which are to be downloaded.
-                   If set to 'pytracking', results for all pytracking based trackers will be downloaded.
-                   If set to 'external', results for available external trackers will be downloaded.
-                   If set to 'all', all available results are downloaded.
-                   If set to a name of a tracker (e.g. atom), all results for that tracker are downloaded.
-                   Otherwise, it can be set to a dict, where the keys are the names of the trackers for which results are
-                   downloaded. The value can be set to either 'all', in which case all available results for the
-                    tracker are downloaded. Else the value should be a list of parameter file names.
-    """
+    
     print('Using download path ''{}'''.format(download_path))
 
     os.makedirs(download_path, exist_ok=True)
@@ -90,8 +78,8 @@ def download_results(download_path, trackers='pytracking'):
         raise Exception('tracker_list must be set to ''all'', or be a dict')
 
     common_link_dict = pytracking_results_link_dict
-    # for k, v in external_results_link_dict.items():
-    #     common_link_dict[k] = v
+    
+    
 
     for trk, runfiles in trackers.items():
         trk_path = os.path.join(download_path, trk)
@@ -115,24 +103,7 @@ def download_results(download_path, trackers='pytracking'):
 
 
 def unpack_tracking_results(download_path, output_path=None):
-    """
-    Unpacks zipped benchmark results. The directory 'download_path' should have the following structure
-    - root
-        - tracker1
-            - param1.zip
-            - param2.zip
-            .
-            .
-        - tracker2
-            - param1.zip
-            - param2.zip
-        .
-        .
-    args:
-        download_path - Path to the directory where the zipped results are stored
-        output_path - Path to the directory where the results will be unpacked. Set to env_settings().results_path
-                      by default
-    """
+    
 
     if output_path is None:
         output_path = env_settings().results_path

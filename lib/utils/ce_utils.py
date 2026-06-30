@@ -19,7 +19,7 @@ def generate_mask_cond(cfg, bs, device, gt_bbox):
 
     if cfg.MODEL.BACKBONE.CE_TEMPLATE_RANGE == 'ALL':
         box_mask_z = None
-    elif cfg.MODEL.BACKBONE.CE_TEMPLATE_RANGE == 'CTR_POINT': # CTR_POINT is selected by Ostrack
+    elif cfg.MODEL.BACKBONE.CE_TEMPLATE_RANGE == 'CTR_POINT': 
         if template_feat_size == 8:
             index = slice(3, 4)
         elif template_feat_size == 12:
@@ -34,8 +34,8 @@ def generate_mask_cond(cfg, bs, device, gt_bbox):
         box_mask_z[:, index, index] = 1
         box_mask_z = box_mask_z.flatten(1).to(torch.bool)
     elif cfg.MODEL.BACKBONE.CE_TEMPLATE_RANGE == 'CTR_REC':
-        # use fixed 4x4 region, 3:5 for 8x8
-        # use fixed 4x4 region 5:6 for 12x12
+        
+        
         if template_feat_size == 8:
             index = slice(3, 5)
         elif template_feat_size == 12:
@@ -50,15 +50,15 @@ def generate_mask_cond(cfg, bs, device, gt_bbox):
 
     elif cfg.MODEL.BACKBONE.CE_TEMPLATE_RANGE == 'GT_BOX':
         box_mask_z = torch.zeros([bs, template_size, template_size], device=device)
-        # box_mask_z_ori = data['template_seg'][0].view(-1, 1, *data['template_seg'].shape[2:])  # (batch, 1, 128, 128)
+        
         box_mask_z = generate_bbox_mask(box_mask_z, gt_bbox * template_size).unsqueeze(1).to(
-            torch.float)  # (batch, 1, 128, 128)
-        # box_mask_z_vis = box_mask_z.cpu().numpy()
+            torch.float)  
+        
         box_mask_z = F.interpolate(box_mask_z, scale_factor=1. / cfg.MODEL.BACKBONE.STRIDE, mode='bilinear',
                                    align_corners=False)
         box_mask_z = box_mask_z.flatten(1).to(torch.bool)
-        # box_mask_z_vis = box_mask_z[:, 0, ...].cpu().numpy()
-        # gaussian_maps_vis = generate_heatmap(data['template_anno'], self.cfg.DATA.TEMPLATE.SIZE, self.cfg.MODEL.STRIDE)[0].cpu().numpy()
+        
+        
     else:
         raise NotImplementedError
 

@@ -8,9 +8,7 @@ import json
 
 
 def parse_args():
-    """
-    args for training.
-    """
+    
     parser = argparse.ArgumentParser(description='Parse args for training')
     parser.add_argument('--data_dir', type=str, help='directory where lmdb data is located')
     parser.add_argument('--dataset_str', type=str, help="which datasets to use")
@@ -60,7 +58,7 @@ if __name__ == "__main__":
         p = mp.Process(target=target, args=(lmdb_dir, key_dict[dataset]))
         print("add %s %s to job queue" % (lmdb_dir, key_dict[dataset]))
         ps.append(p)
-    # deal with trackingnet
+    
     if 't' in dataset_str:
         trknet_dict = get_trknet_dict(os.path.join(data_dir, "trackingnet_lmdb"))
         for set_idx, seq_path in trknet_dict.items():

@@ -5,21 +5,21 @@ from collections import OrderedDict
 
 
 class BaseDataset:
-    """Base class for all datasets."""
+    
     def __init__(self):
         self.env_settings = env_settings()
 
     def __len__(self):
-        """Overload this function in your dataset. This should return number of sequences in the dataset."""
+        
         raise NotImplementedError
 
     def get_sequence_list(self):
-        """Overload this in your dataset. Should return the list of sequences in the dataset."""
+        
         raise NotImplementedError
 
 
 class Sequence:
-    """Class for the sequence in an evaluation."""
+    
     def __init__(self, name, frames, dataset, ground_truth_rect, ground_truth_seg=None, init_data=None,
                  object_class=None, target_visible=None, object_ids=None, multiobj_mode=False):
         self.name = name
@@ -35,7 +35,7 @@ class Sequence:
         self._ensure_start_frame()
 
     def _ensure_start_frame(self):
-        # Ensure start frame is 0
+        
         start_frame = min(list(self.init_data.keys()))
         if start_frame > 0:
             self.frames = self.frames[start_frame:]
@@ -60,7 +60,7 @@ class Sequence:
                 for frame, init_val in init_data.items():
                     if 'bbox' in init_val and isinstance(init_val['bbox'], (dict, OrderedDict)):
                         init_val['bbox'] = init_val['bbox'][self.object_ids[0]]
-            # convert to list
+            
             for frame, init_val in init_data.items():
                 if 'bbox' in init_val:
                     if isinstance(init_val['bbox'], (dict, OrderedDict)):
@@ -68,7 +68,7 @@ class Sequence:
                     else:
                         init_val['bbox'] = list(init_val['bbox'])
         else:
-            init_data = {0: dict()}     # Assume start from frame 0
+            init_data = {0: dict()}     
 
             if self.object_ids is not None:
                 init_data[0]['object_ids'] = self.object_ids
@@ -150,7 +150,7 @@ class Sequence:
 
 
 class Sequence_RGBT:
-    """Class for the sequence in an evaluation."""
+    
     def __init__(self, name, frames_v, frames_i, dataset, ground_truth_rect, ground_truth_seg=None, init_data=None,
                  object_class=None, target_visible=None, object_ids=None, multiobj_mode=False):
         self.name = name
@@ -167,7 +167,7 @@ class Sequence_RGBT:
         self._ensure_start_frame()
 
     def _ensure_start_frame(self):
-        # Ensure start frame is 0
+        
         start_frame = min(list(self.init_data.keys()))
         if start_frame > 0:
             self.frames_v = self.frames_v[start_frame:]
@@ -193,7 +193,7 @@ class Sequence_RGBT:
                 for frame, init_val in init_data.items():
                     if 'bbox' in init_val and isinstance(init_val['bbox'], (dict, OrderedDict)):
                         init_val['bbox'] = init_val['bbox'][self.object_ids[0]]
-            # convert to list
+            
             for frame, init_val in init_data.items():
                 if 'bbox' in init_val:
                     if isinstance(init_val['bbox'], (dict, OrderedDict)):
@@ -201,7 +201,7 @@ class Sequence_RGBT:
                     else:
                         init_val['bbox'] = list(init_val['bbox'])
         else:
-            init_data = {0: dict()}     # Assume start from frame 0
+            init_data = {0: dict()}     
 
             if self.object_ids is not None:
                 init_data[0]['object_ids'] = self.object_ids
@@ -286,7 +286,7 @@ class Sequence_RGBT:
 
 
 class SequenceList(list):
-    """List of sequences. Supports the addition operator to concatenate sequence lists."""
+    
     def __getitem__(self, item):
         if isinstance(item, str):
             for seq in self:

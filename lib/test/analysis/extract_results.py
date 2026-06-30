@@ -30,7 +30,7 @@ def calc_iou_overlap(pred_bb, anno_bb):
     br = torch.min(pred_bb[:, :2] + pred_bb[:, 2:] - 1.0, anno_bb[:, :2] + anno_bb[:, 2:] - 1.0)
     sz = (br - tl + 1.0).clamp(0)
 
-    # Area
+    
     intersection = sz.prod(dim=1)
     union = pred_bb[:, 2:].prod(dim=1) + anno_bb[:, 2:].prod(dim=1) - intersection
 
@@ -40,7 +40,7 @@ def calc_iou_overlap(pred_bb, anno_bb):
 def calc_seq_err_robust(pred_bb, anno_bb, dataset, target_visible=None):
     pred_bb = pred_bb.clone()
 
-    # Check if invalid values are present
+    
     if torch.isnan(pred_bb).any() or (pred_bb[:, 2:] < 0.0).any():
         raise Exception('Error: Invalid results')
 
@@ -58,12 +58,12 @@ def calc_seq_err_robust(pred_bb, anno_bb, dataset, target_visible=None):
     if pred_bb.shape[0] != anno_bb.shape[0]:
         if dataset == 'lasot':
             if pred_bb.shape[0] > anno_bb.shape[0]:
-                # For monkey-17, there is a mismatch for some trackers.
+                
                 pred_bb = pred_bb[:anno_bb.shape[0], :]
             else:
                 raise Exception('Mis-match in tracker prediction and GT lengths')
         else:
-            # print('Warning: Mis-match in tracker prediction and GT lengths')
+            
             if pred_bb.shape[0] > anno_bb.shape[0]:
                 pred_bb = pred_bb[:anno_bb.shape[0], :]
             else:
@@ -82,7 +82,7 @@ def calc_seq_err_robust(pred_bb, anno_bb, dataset, target_visible=None):
     err_center_normalized = calc_err_center(pred_bb, anno_bb, normalized=True)
     err_overlap = calc_iou_overlap(pred_bb, anno_bb)
 
-    # handle invalid anno cases
+    
     if dataset in ['uav']:
         err_center[~valid] = -1.0
     else:
@@ -124,15 +124,15 @@ def extract_results(trackers, dataset, report_name, skip_missing_seq=False, plot
     valid_sequence = torch.ones(len(dataset), dtype=torch.uint8)
 
     for seq_id, seq in enumerate(tqdm(dataset)):
-        # Load anno
+        
         anno_bb = torch.tensor(seq.ground_truth_rect)
         target_visible = torch.tensor(seq.target_visible, dtype=torch.uint8) if seq.target_visible is not None else None
         for trk_id, trk in enumerate(trackers):
-            # Load results
+            
             base_results_path = '{}/{}/{}'.format(trk.results_dir, 'lashertestingset','ostrack_cat'+'_'+seq.name)
             results_path = '{}.txt'.format(base_results_path)
-            #/data1/andong.lu/code/RGBT/OSTrack/output/test/tracking_results/ostrack/vitb_256_mae_ce_32x4_ep300/ostrack_cat_blackwoman.txt
-            #/data1/andong.lu/code/RGBT/OSTrack/output/test/tracking_results/ostrack/vitb_384_mae_ce_32x4_ep300/ostrack_cat_blackwoman.txt
+            
+            
             if os.path.isfile(results_path):
                 pred_bb = torch.tensor(load_text(str(results_path), delimiter=('\t', ','), dtype=np.float64))
             else:
@@ -142,7 +142,7 @@ def extract_results(trackers, dataset, report_name, skip_missing_seq=False, plot
                 else:
                     raise Exception('Result not found. {}'.format(results_path))
 
-            # Calculate measures
+            
             err_overlap, err_center, err_center_normalized, valid_frame = calc_seq_err_robust(
                 pred_bb, anno_bb, seq.dataset, target_visible)
 
@@ -162,7 +162,7 @@ def extract_results(trackers, dataset, report_name, skip_missing_seq=False, plot
 
     print('\n\nComputed results over {} / {} sequences'.format(valid_sequence.long().sum().item(), valid_sequence.shape[0]))
 
-    # Prepare dictionary for saving data
+    
     seq_names = [s.name for s in dataset]
     tracker_names = [{'name': t.name, 'param': t.parameter_name, 'run_id': t.run_id, 'disp_name': t.display_name}
                      for t in trackers]

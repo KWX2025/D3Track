@@ -15,46 +15,27 @@ def get_target_to_image_ratio(seq):
 
 
 class ImagenetVID(BaseVideoDataset):
-    """ Imagenet VID dataset.
-
-    Publication:
-        ImageNet Large Scale Visual Recognition Challenge
-        Olga Russakovsky, Jia Deng, Hao Su, Jonathan Krause, Sanjeev Satheesh, Sean Ma, Zhiheng Huang, Andrej Karpathy,
-        Aditya Khosla, Michael Bernstein, Alexander C. Berg and Li Fei-Fei
-        IJCV, 2015
-        https://arxiv.org/pdf/1409.0575.pdf
-
-    Download the dataset from http://image-net.org/
-    """
+    
     def __init__(self, root=None, image_loader=jpeg4py_loader, min_length=0, max_target_area=1):
-        """
-        args:
-            root - path to the imagenet vid dataset.
-            image_loader (default_image_loader) -  The function to read the images. If installed,
-                                                   jpeg4py (https://github.com/ajkxyz/jpeg4py) is used by default. Else,
-                                                   opencv's imread is used.
-            min_length - Minimum allowed sequence length.
-            max_target_area - max allowed ratio between target area and image area. Can be used to filter out targets
-                                which cover complete image.
-        """
+        
         root = env_settings().imagenet_dir if root is None else root
         super().__init__("imagenetvid", root, image_loader)
 
         cache_file = os.path.join(root, 'cache.json')
         if os.path.isfile(cache_file):
-            # If available, load the pre-processed cache file containing meta-info for each sequence
+            
             with open(cache_file, 'r') as f:
                 sequence_list_dict = json.load(f)
 
             self.sequence_list = sequence_list_dict
         else:
-            # Else process the imagenet annotations and generate the cache file
+            
             self.sequence_list = self._process_anno(root)
 
             with open(cache_file, 'w') as f:
                 json.dump(self.sequence_list, f)
 
-        # Filter the sequences based on min_length and max_target_area in the first frame
+        
         self.sequence_list = [x for x in self.sequence_list if len(x['anno']) >= min_length and
                               get_target_to_image_ratio(x) < max_target_area]
 
@@ -86,12 +67,12 @@ class ImagenetVID(BaseVideoDataset):
         if anno is None:
             anno = self.get_sequence_info(seq_id)
 
-        # Create anno dict
+        
         anno_frames = {}
         for key, value in anno.items():
             anno_frames[key] = [value[f_id, ...].clone() for f_id in frame_ids]
 
-        # added the class info to the meta info
+        
         object_meta = OrderedDict({'object_class': sequence['class_name'],
                                    'motion_class': None,
                                    'major_class': None,
@@ -101,7 +82,7 @@ class ImagenetVID(BaseVideoDataset):
         return frame_list, anno_frames, object_meta
 
     def _process_anno(self, root):
-        # Builds individual tracklets
+        
         base_vid_anno_path = os.path.join(root, 'Annotations', 'VID', 'train')
 
         all_sequences = []
@@ -120,7 +101,7 @@ class ImagenetVID(BaseVideoDataset):
 
                 tracklets = {}
 
-                # Find all tracklets along with start frame
+                
                 for f_id, all_targets in enumerate(objects):
                     for target in all_targets:
                         tracklet_id = target.find('trackid').text

@@ -9,24 +9,14 @@ from collections import OrderedDict
 from .base_video_dataset import BaseVideoDataset
 from lib.train.data import jpeg4py_loader
 from lib.train.admin import env_settings
-'''2021.1.16 Lasot for loading lmdb dataset'''
+
 from lib.utils.lmdb_utils import *
 
 
 class Lasot_lmdb(BaseVideoDataset):
 
     def __init__(self, root=None, image_loader=jpeg4py_loader, vid_ids=None, split=None, data_fraction=None):
-        """
-        args:
-            root - path to the lasot dataset.
-            image_loader (jpeg4py_loader) -  The function to read the images. jpeg4py (https://github.com/ajkxyz/jpeg4py)
-                                            is used by default.
-            vid_ids - List containing the ids of the videos (1 - 20) used for training. If vid_ids = [1, 3, 5], then the
-                    videos with subscripts -1, -3, and -5 from each class will be used for training.
-            split - If split='train', the official train split (protocol-II) is used for training. Note: Only one of
-                    vid_ids or split option can be used at a time.
-            data_fraction - Fraction of dataset to be used. The complete dataset is used by default
-        """
+        
         root = env_settings().lasot_lmdb_dir if root is None else root
         super().__init__('LaSOT_lmdb', root, image_loader)
 
@@ -36,7 +26,7 @@ class Lasot_lmdb(BaseVideoDataset):
         for ele in class_list:
             if ele not in self.class_list:
                 self.class_list.append(ele)
-        # Keep a list of all classes
+        
         self.class_to_id = {cls_name: cls_id for cls_id, cls_name in enumerate(self.class_list)}
 
         if data_fraction is not None:
@@ -92,13 +82,13 @@ class Lasot_lmdb(BaseVideoDataset):
 
     def _read_bb_anno(self, seq_path):
         bb_anno_file = os.path.join(seq_path, "groundtruth.txt")
-        gt_str_list = decode_str(self.root, bb_anno_file).split('\n')[:-1]  # the last line is empty
+        gt_str_list = decode_str(self.root, bb_anno_file).split('\n')[:-1]  
         gt_list = [list(map(float, line.split(','))) for line in gt_str_list]
         gt_arr = np.array(gt_list).astype(np.float32)
         return torch.tensor(gt_arr)
 
     def _read_target_visible(self, seq_path):
-        # Read full occlusion and out_of_view
+        
         occlusion_file = os.path.join(seq_path, "full_occlusion.txt")
         out_of_view_file = os.path.join(seq_path, "out_of_view.txt")
 
@@ -128,7 +118,7 @@ class Lasot_lmdb(BaseVideoDataset):
         return {'bbox': bbox, 'valid': valid, 'visible': visible}
 
     def _get_frame_path(self, seq_path, frame_id):
-        return os.path.join(seq_path, 'img', '{:08}.jpg'.format(frame_id+1))    # frames start from 1
+        return os.path.join(seq_path, 'img', '{:08}.jpg'.format(frame_id+1))    
 
     def _get_frame(self, seq_path, frame_id):
         return decode_img(self.root, self._get_frame_path(seq_path, frame_id))

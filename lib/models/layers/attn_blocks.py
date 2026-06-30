@@ -9,21 +9,7 @@ from lib.models.layers.attn import Attention, Attention_qkv, Attention_st
 
 
 def candidate_elimination(attn: torch.Tensor, tokens: torch.Tensor, lens_t: int, keep_ratio: float, global_index: torch.Tensor, box_mask_z: torch.Tensor):
-    """
-    Eliminate potential background candidates for computation reduction and noise cancellation.
-    Args:
-        attn (torch.Tensor): [B, num_heads, L_t + L_s, L_t + L_s], attention weights
-        tokens (torch.Tensor):  [B, L_t + L_s, C], template and search region tokens
-        lens_t (int): length of template
-        keep_ratio (float): keep ratio of search region tokens (candidates)
-        global_index (torch.Tensor): global index of search region tokens
-        box_mask_z (torch.Tensor): template mask used to accumulate attention weights
-
-    Returns:
-        tokens_new (torch.Tensor): tokens after candidate elimination
-        keep_index (torch.Tensor): indices of kept search region tokens
-        removed_index (torch.Tensor): indices of removed search region tokens
-    """
+    
     lens_s = attn.shape[-1] - lens_t
     bs, hn, _, _ = attn.shape
 
@@ -35,19 +21,19 @@ def candidate_elimination(attn: torch.Tensor, tokens: torch.Tensor, lens_t: int,
 
     if box_mask_z is not None:
         box_mask_z = box_mask_z.unsqueeze(1).unsqueeze(-1).expand(-1, attn_t.shape[1], -1, attn_t.shape[-1])
-        # attn_t = attn_t[:, :, box_mask_z, :]
+        
         attn_t = attn_t[box_mask_z]
         attn_t = attn_t.view(bs, hn, -1, lens_s)
-        attn_t = attn_t.mean(dim=2).mean(dim=1)  # B, H, L-T, L_s --> B, L_s
+        attn_t = attn_t.mean(dim=2).mean(dim=1)  
 
-        # attn_t = [attn_t[i, :, box_mask_z[i, :], :] for i in range(attn_t.size(0))]
-        # attn_t = [attn_t[i].mean(dim=1).mean(dim=0) for i in range(len(attn_t))]
-        # attn_t = torch.stack(attn_t, dim=0)
+        
+        
+        
     else:
-        attn_t = attn_t.mean(dim=2).mean(dim=1)  # B, H, L-T, L_s --> B, L_s
+        attn_t = attn_t.mean(dim=2).mean(dim=1)  
 
-    # use sort instead of topk, due to the speed issue
-    # https://github.com/pytorch/pytorch/issues/22812
+    
+    
     sorted_attn, indices = torch.sort(attn_t, dim=1, descending=True)
 
     topk_attn, topk_idx = sorted_attn[:, :lens_keep], indices[:, :lens_keep]
@@ -56,21 +42,21 @@ def candidate_elimination(attn: torch.Tensor, tokens: torch.Tensor, lens_t: int,
     keep_index = global_index.gather(dim=1, index=topk_idx)
     removed_index = global_index.gather(dim=1, index=non_topk_idx)
 
-    # separate template and search tokens
+    
     tokens_t = tokens[:, :lens_t]
     tokens_s = tokens[:, lens_t:]
 
-    # obtain the attentive and inattentive tokens
+    
     B, L, C = tokens_s.shape
-    # topk_idx_ = topk_idx.unsqueeze(-1).expand(B, lens_keep, C)
+    
     attentive_tokens = tokens_s.gather(dim=1, index=topk_idx.unsqueeze(-1).expand(B, -1, C))
-    # inattentive_tokens = tokens_s.gather(dim=1, index=non_topk_idx.unsqueeze(-1).expand(B, -1, C))
+    
 
-    # compute the weighted combination of inattentive tokens
-    # fused_token = non_topk_attn @ inattentive_tokens
+    
+    
 
-    # concatenate these tokens
-    # tokens_new = torch.cat([tokens_t, attentive_tokens, fused_token], dim=0)
+    
+    
     tokens_new = torch.cat([tokens_t, attentive_tokens], dim=1)
 
     return tokens_new, keep_index, removed_index
@@ -83,7 +69,7 @@ class CEBlock(nn.Module):
         super().__init__()
         self.norm1 = norm_layer(dim)
         self.attn = Attention(dim, num_heads=num_heads, qkv_bias=qkv_bias, attn_drop=attn_drop, proj_drop=drop)
-        # NOTE: drop path for stochastic depth, we shall see if this is better than dropout here
+        
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
@@ -124,7 +110,7 @@ class Block(nn.Module):
         super().__init__()
         self.norm1 = norm_layer(dim)
         self.attn = Attention(dim, num_heads=num_heads, qkv_bias=qkv_bias, attn_drop=attn_drop, proj_drop=drop)
-        # NOTE: drop path for stochastic depth, we shall see if this is better than dropout here
+        
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
@@ -160,13 +146,11 @@ class Attention_split(nn.Module):
 
 
     def get_corrmap(self, q, k, mask):
-        """
-        输出原始的QK权重，未softmax
-        """
-        # q: B, N, C
+        
+        
         B, N1, C = q.shape
         B, N2, C = k.shape
-        q = self.q_linear(q).reshape(B, N1, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3) # B,hn,N,C/hn
+        q = self.q_linear(q).reshape(B, N1, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3) 
         k = self.k_linear(k).reshape(B, N2, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3)
 
         attn = (q @ k.transpose(-2, -1)) * self.scale
@@ -178,9 +162,7 @@ class Attention_split(nn.Module):
 
 
     def get_attn_x(self, attn, v, return_attention=False, need_softmax=True):
-        """
-        根据attn权重，组织value
-        """
+        
         if need_softmax:        
             attn = attn.softmax(dim=-1)
             
@@ -200,10 +182,10 @@ class Attention_split(nn.Module):
 
 
     def general_forward(self, query, key, value, mask, return_attention=False):
-        # q: B, N, C
+        
         B, N1, C = query.shape
         B, N2, C = key.shape
-        q = self.q_linear(query).reshape(B, N1, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3) # B,hn,N,C/hn
+        q = self.q_linear(query).reshape(B, N1, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3) 
         k = self.k_linear(key).reshape(B, N2, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3)
         v = self.v_linear(value).reshape(B, N2, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3)
 
@@ -241,7 +223,7 @@ class MCEBlock(nn.Module):
         self.layer_idx = layer_idx
         self.norm1 = norm_layer(dim)
         self.attn = Attention(dim, num_heads=num_heads, qkv_bias=qkv_bias, attn_drop=attn_drop, proj_drop=drop)
-        # NOTE: drop path for stochastic depth, we shall see if this is better than dropout here
+        
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
@@ -263,22 +245,22 @@ class MCEBlock(nn.Module):
                 keep_ratio_search = self.keep_ratio_search if keep_ratio_search is None else keep_ratio_search
                 attn_li[1].append(attn)
                 attn_li[2].append(self.layer_idx)
-                branch_num = 4 if self.training else 2      # 先跑教师再跑学生
-                if len(attn_li[1])==branch_num:             # 承上启下
+                branch_num = 4 if self.training else 2      
+                if len(attn_li[1])==branch_num:             
                     max_attn = torch.stack(attn_li[1][-2:], dim=-1).max(-1).values
                     x, global_index_search, removed_index_search, topk_idx = candidate_elimination(max_attn, x, lens_t, keep_ratio_search, global_index_search, ce_template_mask)
                     attn_li = ([global_index_search, removed_index_search, topk_idx], [], [])
                     self.next_gr[0].switch(attn_li)
-                else:                                       # 处理结果并传递
+                else:                                       
                     attn_li = self.next_gr[0].switch(attn_li)
                     x, _, _, _ = candidate_elimination(None, x, lens_t, keep_ratio_search, global_index_search, ce_template_mask, topk_idx=attn_li[0][-1])
                     global_index_search, removed_index_search = attn_li[0][0], attn_li[0][1]
-                # if attn_ce==None:
-                #     keep_ratio_search = self.keep_ratio_search if keep_ratio_search is None else keep_ratio_search
-                #     x, global_index_search, removed_index_search = candidate_elimination(attn, x, lens_t, keep_ratio_search, global_index_search, ce_template_mask)
-                # else:
-                #     keep_ratio_search = self.keep_ratio_search if keep_ratio_search is None else keep_ratio_search
-                #     x, global_index_search, removed_index_search = candidate_elimination(attn_ce, x, lens_t, keep_ratio_search, global_index_search, ce_template_mask)
+                
+                
+                
+                
+                
+                
 
             x = x + self.drop_path(self.mlp(self.norm2(x)))
             return x, global_index_template, global_index_search, removed_index_search, attn, attn_li
@@ -293,7 +275,7 @@ class CASTBlock(nn.Module):
         super().__init__()
         self.norm1 = norm_layer(dim)
         self.attn_reshape = Attention_st(dim, mode, num_heads=num_heads, qkv_bias=qkv_bias, attn_drop=attn_drop, proj_drop=drop)
-        # NOTE: drop path for stochastic depth, we shall see if this is better than dropout here
+        
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)

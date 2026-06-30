@@ -23,7 +23,7 @@ class VisResults(object):
 
     def vis_dataset(self, dataset, trackers, skip_missing_seq=False, seq_list=[]):
         for seq_id, seq in enumerate(tqdm(dataset)):
-            # Load anno
+            
             seq_name = seq.name
             if seq_list:
                 if seq_name not in seq_list:
@@ -36,7 +36,7 @@ class VisResults(object):
             all_pred_boxes = []
 
             for trk_id, trk in enumerate(trackers):
-                # Load results
+                
                 base_results_path = '{}/{}'.format(trk.results_dir, seq.name)
                 results_path = '{}.txt'.format(base_results_path)
 
@@ -55,8 +55,8 @@ class VisResults(object):
                 frame = frame_list[i]
                 im = cv.imread(frame)
                 im = cv.cvtColor(im, cv.COLOR_BGR2RGB)
-                # im = torch.from_numpy(im).float().permute(2, 0, 1)
-                # im = im.numpy()
+                
+                
                 data.append(im)
 
                 gt_box = anno_bb[i]
@@ -74,7 +74,7 @@ class VisResults(object):
                     break
 
                 self.update_boxes(data, seq_name + '-' + str(i).zfill(3))
-                # self.update_seg_result(im, frame)
+                
 
     def update_boxes(self, data, caption):
         caption = 'Green: GT, Red: stark_s, Yellow: stark_motion  _' + caption
@@ -104,7 +104,7 @@ class VisResults(object):
             self.visdom = Visdom(1, {'handler': self._visdom_ui_handler, 'win_id': 'Tracking'},
                                  visdom_info=visdom_info, env='vis_results')
 
-            # Show help
+            
             help_text = 'You can pause/unpause the tracker by pressing ''space'' with the ''Tracking'' window ' \
                         'selected. During paused mode, you can track for one frame by pressing the right arrow key.' \
                         'To enable/disable plotting of a data block, tick/untick the corresponding entry in ' \
@@ -132,48 +132,48 @@ if __name__ == '__main__':
     dataset_name = 'lasot'
 
     trackers = []
-    # trackers.extend(trackerlist('defor_stark_s', 'baseline_got10k_only', None, 'defor_stark'))
-    # trackers.extend(trackerlist('stark_s', 'baseline_got10k_only', None, 'stark'))
-    # trackers.extend(trackerlist('dimp', 'dimp50', dataset_name, None, 'DiMP50'))
-    # trackers.extend(trackerlist('sa', 'attn_direct', None, 'SA')) # ori
-    # trackers.extend(trackerlist('sa', 'attn1', None, 'SA')) # extrat conv to conver backbone feature from 1024 to 32
-    # trackers.extend(trackerlist('sa', 'attn_segaddlabel', None, 'SA')) # add label to seg mask
+    
+    
+    
+    
+    
+    
 
-    # trackers.extend(trackerlist('stark_s', 'baseline_got10k_only_encoder_only_ep500', None, 'STARK-S-Encoder-EP500'))
-    # trackers.extend(trackerlist('stark_motion', 'baseline_got10k_only_ep100_002', None, 'STARK-motion-EP100'))
-    # trackers.extend(
-    #     trackerlist('stark_motion', 'baseline_got10k_only_offset_ep100_001', None, 'STARK-motion-offset-EP100'))
+    
+    
+    
+    
 
-    # trackers.extend(trackerlist('stark_s', 'baseline', dataset_name, None, 'stark_s'))
-    # trackers.extend(trackerlist('stark_st', 'baseline', dataset_name, None, 'stark_st'))
+    
+    
 
-    # trackers.extend(trackerlist('stark_mem', 'baseline_roi', dataset_name, None, 'baseline'))
-    # trackers.extend(trackerlist('stark_mem', 'baseline_roi', dataset_name, 17, 'update_template'))
-    # trackers.extend(trackerlist('stark_mem', 'baseline_roi', dataset_name, 32, 'update_template'))
-    # trackers.extend(trackerlist('stark_mem', 'baseline_roi', dataset_name, 36, 'update_template'))
-    # trackers.extend(trackerlist('stark_mem', 'baseline_roi_ep300', dataset_name, None, 'update_template'))
-    # trackers.extend(trackerlist('stark_mem', 'baseline_roi_ep300', dataset_name, 6, 'update_template'))
-    # trackers.extend(trackerlist('stark_mem', 'baseline_roi_ep300', dataset_name, 55, 'update_template'))
-    # trackers.extend(trackerlist('stark_mem', 'baseline_roi_ep300', dataset_name, 57, 'update_template'))
+    
+    
+    
+    
+    
+    
+    
+    
 
-    # trackers.extend(trackerlist('stark_mem', 'baseline_roi_upsample_syncbn', dataset_name, None, 'baseline_roi_upsample_syncbn'))
-    # trackers.extend(trackerlist('stark_mem', 'baseline_roi', dataset, 9, 'update_template1'))
-    # trackers.extend(trackerlist('stark_mem', 'baseline_roi_ciou', dataset_name, None, 'update_template'))
-    # trackers.extend(trackerlist('stark_mem', 'baseline_roi_ciou', dataset_name, 1, 'update_template'))
+    
+    
+    
+    
 
     trackers.extend(trackerlist('stark_mem', 'baseline_roi_ep500', dataset_name, None, 'baseline_roi_ep500'))
 
     trackers.extend(trackerlist('vit_tracker', 'cait_small_224_ep300', dataset_name, None, 'cait_small_224_ep300'))
     trackers.extend(trackerlist('vit_tracker', 'cait_small_224_fcos_new_32x4_ep300', dataset_name, None, 'cait_small_224_fcos_new_32x4_ep300'))
     trackers.extend(trackerlist('vit_tracker', 'cait_small_224_fcos_cn_32x4_ep300_test_cn', dataset_name, None, 'cait_small_224_fcos_cn_32x4_ep300_test_cn'))
-    # trackers.extend(trackerlist('vit_tracker', 'cait_small_224_vfloss_64x2_ep100', dataset_name, None, 'cait_small_224_vfloss_64x2_ep100'))
-    # trackers.extend(trackerlist('vit_tracker', 'cait_small_224_fcos_cn_32x4_ep300_retest', dataset_name, None, 'retest'))
+    
+    
 
     dataset = get_dataset(dataset_name)
 
-    # trackers.extend(trackerlist('dimp', 'dimp50', None, 'DiMP50'))
-    # trackers.extend(trackerlist('sa', 'attn_direct', None, 'SA'))
-    # dataset = get_dataset('vot')
-    # 'GOT-10k_Train_001350'
+    
+    
+    
+    
     viser.vis_dataset(dataset, trackers, seq_list=[])
-    # viser.vis_dataset(dataset, trackers, seq_list=['GOT-10k_Train_007446'])
+    

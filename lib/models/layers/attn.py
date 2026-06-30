@@ -25,17 +25,17 @@ class Attention(nn.Module):
                 generate_2d_concatenated_self_attention_relative_positional_encoding_index([z_size, z_size],
                                                                                            [x_size, x_size])
             self.register_buffer("relative_position_index", relative_position_index)
-            # define a parameter table of relative position bias
+            
             self.relative_position_bias_table = nn.Parameter(torch.empty((num_heads,
                                                                           relative_position_index.max() + 1)))
             trunc_normal_(self.relative_position_bias_table, std=0.02)
 
     def forward(self, x, mask=None, return_attention=False):
-        # x: B, N, C
-        # mask: [B, N, ] torch.bool
+        
+        
         B, N, C = x.shape
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
-        q, k, v = qkv.unbind(0)   # make torchscript happy (cannot use tensor as tuple)
+        q, k, v = qkv.unbind(0)   
 
         attn = (q @ k.transpose(-2, -1)) * self.scale
 
@@ -83,15 +83,15 @@ class Attention_qkv(nn.Module):
         self.proj_drop = nn.Dropout(proj_drop)
 
     def forward_post(self, q, k, v, mask, return_attention=False):
-        # q: B, N, C
+        
         B, N1, C = q.shape
         B, N2, C = k.shape
-        q = self.q_linear(q).reshape(B, N1, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3) # B,hn,N,C/hn
+        q = self.q_linear(q).reshape(B, N1, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3) 
         k = self.k_linear(k).reshape(B, N2, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3)
         v = self.v_linear(v).reshape(B, N2, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3)
 
-        # qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
-        # q, k, v = qkv.unbind(0)   # make torchscript happy (cannot use tensor as tuple)
+        
+        
 
         attn = (q @ k.transpose(-2, -1)) * self.scale
 
@@ -121,8 +121,8 @@ class Attention_qkv(nn.Module):
 
 
 class Attention_talking_head(nn.Module):
-    # taken from https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/vision_transformer.py
-    # with slight modifications to add Talking Heads Attention (https://arxiv.org/pdf/2003.02436v1.pdf)
+    
+    
     def __init__(self, dim, num_heads=8, qkv_bias=False, qk_scale=None, attn_drop=0., proj_drop=0.,
                  rpe=True, z_size=7, x_size=14):
         super().__init__()
@@ -149,7 +149,7 @@ class Attention_talking_head(nn.Module):
                 generate_2d_concatenated_self_attention_relative_positional_encoding_index([z_size, z_size],
                                                                                            [x_size, x_size])
             self.register_buffer("relative_position_index", relative_position_index)
-            # define a parameter table of relative position bias
+            
             self.relative_position_bias_table = nn.Parameter(torch.empty((num_heads,
                                                                           relative_position_index.max() + 1)))
             trunc_normal_(self.relative_position_bias_table, std=0.02)
@@ -186,7 +186,7 @@ class Attention_st(nn.Module):
         super().__init__()
         self.num_heads = num_heads
         head_dim = dim // num_heads
-        self.scale = head_dim ** -0.5  # NOTE: Small scale for attention map normalization
+        self.scale = head_dim ** -0.5  
 
         self.attn_drop = nn.Dropout(attn_drop)
         self.proj = nn.Linear(dim, dim)
@@ -198,36 +198,36 @@ class Attention_st(nn.Module):
                 generate_2d_concatenated_self_attention_relative_positional_encoding_index([z_size, z_size],
                                                                                            [x_size, x_size])
             self.register_buffer("relative_position_index", relative_position_index)
-            # define a parameter table of relative position bias
+            
             self.relative_position_bias_table = nn.Parameter(torch.empty((num_heads,
                                                                           relative_position_index.max() + 1)))
             trunc_normal_(self.relative_position_bias_table, std=0.02)
 
     def forward(self, x, mask=None, return_attention=False):
-        # x: B, N, C
-        # mask: [B, N, ] torch.bool
+        
+        
         B, N, C = x.shape
 
-        lens_z = 64  # Number of template tokens
-        lens_x = 256  # Number of search region tokens
-        if self.mode == 's2t':  # Search to template
-            q = x[:, :lens_z]  # B, lens_z, C
-            k = x[:, lens_z:]  # B, lens_x, C
-            v = x[:, lens_z:]  # B, lens_x, C
-        elif self.mode == 't2s':  # Template to search
-            q = x[:, lens_z:]  # B, lens_x, C
-            k = x[:, :lens_z]  # B, lens_z, C
-            v = x[:, :lens_z]  # B, lens_z, C
-        elif self.mode == 't2t':  # Template to template
-            q = x[:, :lens_z]  # B, lens_z, C
-            k = x[:, lens_z:]  # B, lens_z, C
-            v = x[:, lens_z:]  # B, lens_z, C
-        elif self.mode == 's2s':  # Search to search
-            q = x[:, :lens_x]  # B, lens_x, C
-            k = x[:, lens_x:]  # B, lens_x, C
-            v = x[:, lens_x:]  # B, lens_x, C
+        lens_z = 64  
+        lens_x = 256  
+        if self.mode == 's2t':  
+            q = x[:, :lens_z]  
+            k = x[:, lens_z:]  
+            v = x[:, lens_z:]  
+        elif self.mode == 't2s':  
+            q = x[:, lens_z:]  
+            k = x[:, :lens_z]  
+            v = x[:, :lens_z]  
+        elif self.mode == 't2t':  
+            q = x[:, :lens_z]  
+            k = x[:, lens_z:]  
+            v = x[:, lens_z:]  
+        elif self.mode == 's2s':  
+            q = x[:, :lens_x]  
+            k = x[:, lens_x:]  
+            v = x[:, lens_x:]  
 
-        attn = (q @ k.transpose(-2, -1)) * self.scale  # B, lens_z, lens_x; B, lens_x, lens_z
+        attn = (q @ k.transpose(-2, -1)) * self.scale  
 
         if self.rpe:
             relative_position_bias = self.relative_position_bias_table[:, self.relative_position_index].unsqueeze(0)
@@ -239,9 +239,9 @@ class Attention_st(nn.Module):
         attn = attn.softmax(dim=-1)
         attn = self.attn_drop(attn)
 
-        x = attn @ v  # B, lens_z/x, C
-        x = x.transpose(1, 2)  # B, C, lens_z/x
-        x = x.reshape(B, -1, C)  # B, lens_z/x, C; NOTE: Rearrange channels, marginal improvement
+        x = attn @ v  
+        x = x.transpose(1, 2)  
+        x = x.reshape(B, -1, C)  
         x = self.proj(x)
         x = self.proj_drop(x)
 

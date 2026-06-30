@@ -5,8 +5,7 @@ import os
 
 
 class ITBDataset(BaseDataset):
-    """ NUS-PRO dataset
-    """
+    
 
     def __init__(self):
         super().__init__()
@@ -34,7 +33,7 @@ class ITBDataset(BaseDataset):
 
         anno_path = '{}/{}'.format(self.base_path, sequence_info['anno_path'])
 
-        # NOTE: NUS has some weird annos which panda cannot handle
+        
         ground_truth_rect = load_text(str(anno_path), delimiter=(',', None), dtype=np.float64, backend='numpy')
         return Sequence(sequence_info['name'], frames, 'otb', ground_truth_rect[init_omit:, :],
                         object_class=sequence_info['object_class'])
@@ -72,4 +71,4 @@ class ITBDataset(BaseDataset):
                              "object_class": "unknown"}
                 sequence_info_list.append(video_tmp)
 
-        return sequence_info_list  # sequence_info_list_50 #
+        return sequence_info_list  

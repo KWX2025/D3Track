@@ -14,16 +14,7 @@ import time
 
 def run_tracker(tracker_name, tracker_param, run_id=None, dataset_name='otb', sequence=None, debug=0, threads=0,
                 num_gpus=8, checkpoint_path=None):
-    """Run tracker on sequence or dataset.
-    args:
-        tracker_name: Name of tracking method.
-        tracker_param: Name of parameter file.
-        run_id: The run id.
-        dataset_name: Name of dataset (otb, nfs, uav, tpl, vot, tn, gott, gotv, lasot).
-        sequence: Sequence number or name.
-        debug: Debug level.
-        threads: Number of threads.
-    """
+    
 
     dataset = get_dataset(dataset_name)
 
@@ -47,7 +38,7 @@ def main():
     parser.add_argument('--num_gpus', type=int, default=8)
     parser.add_argument('--vis_gpus', type=str, default='0,1,2,3')
     parser.add_argument('--checkpoint_path', type=str, default=None)
-    parser.add_argument('--wait', type=int, default=0)  # 定时【分钟】
+    parser.add_argument('--wait', type=int, default=0)  
 
 
 
@@ -64,7 +55,7 @@ def main():
     time.sleep(args.wait*60)
     run_tracker(args.tracker_name, args.tracker_param, args.runid, args.dataset_name, seq_name, args.debug,
                 args.threads, num_gpus=args.num_gpus, checkpoint_path=args.checkpoint_path)
-    # runid参数是无效的，将在tracker中修改为test_epoch
+    
 
 
 if __name__ == '__main__':

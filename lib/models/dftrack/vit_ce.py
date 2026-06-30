@@ -19,14 +19,7 @@ _logger = logging.getLogger(__name__)
 
 
 class VisionTransformerCE(VisionTransformer):
-    """ Vision Transformer with candidate elimination (CE) module
-
-    A PyTorch impl of : `An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale`
-        - https://arxiv.org/abs/2010.11929
-
-    Includes distillation token & head support for `DeiT: Data-efficient Image Transformers`
-        - https://arxiv.org/abs/2012.12877
-    """
+    
 
     def __init__(self, img_size=224, patch_size=16, in_chans=3, num_classes=1000, embed_dim=768, depth=12,
                  num_heads=12, mlp_ratio=4., qkv_bias=True, representation_size=None, distilled=False,
@@ -34,27 +27,8 @@ class VisionTransformerCE(VisionTransformer):
                  act_layer=None, weight_init='',
                  ce_loc=None, ce_keep_ratio=None
                  ):
-        """
-        Args:
-            img_size (int, tuple): input image size
-            patch_size (int, tuple): patch size
-            in_chans (int): number of input channels
-            num_classes (int): number of classes for classification head
-            embed_dim (int): embedding dimension
-            depth (int): depth of transformer
-            num_heads (int): number of attention heads
-            mlp_ratio (int): ratio of mlp hidden dim to embedding dim
-            qkv_bias (bool): enable bias for qkv if True
-            representation_size (Optional[int]): enable and set representation layer (pre-logits) to this value if set
-            distilled (bool): model includes a distillation token and head as in DeiT models
-            drop_rate (float): dropout rate
-            attn_drop_rate (float): attention dropout rate
-            drop_path_rate (float): stochastic depth rate
-            embed_layer (nn.Module): patch embedding layer
-            norm_layer: (nn.Module): normalization layer
-            weight_init: (str): weight init scheme
-        """
-        # super().__init__()
+        
+        
         super().__init__()
         self.next_gr = [None]
         if isinstance(img_size, tuple):
@@ -108,10 +82,10 @@ class VisionTransformerCE(VisionTransformer):
                          ):
 
         B, H, W = x.shape[0], x.shape[2], x.shape[3]
-        #z.shape = [4,B,C,H,W]
+        
         x = self.patch_embed(x)
-        z = z.flatten(0, 1) # z.shape = [4*B,C,H,W]
-        z = self.patch_embed(z) #z.shape = [4*B,N,C]
+        z = z.flatten(0, 1) 
+        z = self.patch_embed(z) 
         z = mask_z*z
         x = mask_x*x
         z += self.pos_embed_z
@@ -119,20 +93,20 @@ class VisionTransformerCE(VisionTransformer):
         N = z.shape[1]
         C = z.shape[2]
         z = z.view(4, B, N, C).permute(1, 0, 2, 3).flatten(1, 2)
-        # (4, B, N, C)->[B,4,N,C]->[B,4N,C]
-        # if not isinstance(mask_x, float):
-        #     x = torch.randn_like(x)*x.std().item()*0.75*(mask_x==False)+x
-        # if not isinstance(mask_z, float):
-        #     z = torch.randn_like(z)*z.std().item()*0.75*(mask_z==False)+z
-        # mask_x = None
+        
+        
+        
+        
+        
+        
 
         x = combine_tokens(z, x, mode=self.cat_mode)
 
 
         x = self.pos_drop(x)
 
-        lens_z = z.shape[1]  # 现在 `lens_z` 是 `4 个 template` 的总长度
-        lens_x = x.shape[1] - lens_z  # `search` 的长度
+        lens_z = z.shape[1]  
+        lens_x = x.shape[1] - lens_z  
 
         global_index_t = torch.linspace(0, lens_z - 1, lens_z).to(x.device)
         global_index_t = global_index_t.repeat(B, 1)
@@ -164,16 +138,16 @@ class VisionTransformerCE(VisionTransformer):
             pad_x = torch.zeros([B, pruned_lens_x, x.shape[2]], device=x.device)
             x = torch.cat([x, pad_x], dim=1)
             index_all = torch.cat([global_index_s, removed_indexes_cat], dim=1)
-            # recover original token order
+            
             C = x.shape[-1]
-            # x = x.gather(1, index_all.unsqueeze(-1).expand(B, -1, C).argsort(1))
+            
             x = torch.zeros_like(x).scatter_(dim=1, index=index_all.unsqueeze(-1).expand(B, -1, C).to(torch.int64), src=x)
 
         x = recover_tokens(x, lens_z_new, lens_x, mode=self.cat_mode)
-        # print(x.shape,z.shape)
-        # # re-concatenate with the template, which may be further used by other modules
-        # x = torch.cat([z, x], dim=1)
-        # print(x.shape)
+        
+        
+        
+        
 
         aux_dict = {
             "attn": attn,
@@ -197,7 +171,7 @@ class VisionTransformerCE(VisionTransformer):
         if len(z_li)>1:
             
             if len(z_li)==2 and self.training:
-                # N_x = 576
+                
                 N_x = 256
                 B = z.shape[0]
                 if self.mask_probability<1. and self.mask_probability>0.:
@@ -214,7 +188,7 @@ class VisionTransformerCE(VisionTransformer):
             attn_li = self.next_gr[0].switch(z_li[1:], x_li[1:], ce_template_mask, ce_keep_rate, tnc_keep_rate, 
                                 mask_probability, mask_ratio,return_last_attn, mask_x)
         else:
-            attn_li = self.next_gr[0].switch((None, [], []))     # 传递初始值
+            attn_li = self.next_gr[0].switch((None, [], []))     
 
         z1, x, aux_dict = self.forward_features(z, x, ce_template_mask=ce_template_mask, ce_keep_rate=ce_keep_rate,
                                             mask_x=mask_x, attn_li=attn_li, mask_z=mask_z)
@@ -244,8 +218,7 @@ def _create_vision_transformer(pretrained=False, **kwargs):
 
 
 def vit_base_patch16_224_ce(pretrained=False, **kwargs):
-    """ ViT-Base model (ViT-B/16) from original paper (https://arxiv.org/abs/2010.11929).
-    """
+    
     model_kwargs = dict(
         patch_size=16, embed_dim=768, depth=12, num_heads=12, **kwargs)
     model = _create_vision_transformer(pretrained=pretrained, **model_kwargs)
@@ -254,8 +227,7 @@ def vit_base_patch16_224_ce(pretrained=False, **kwargs):
 
 
 def vit_large_patch16_224_ce(pretrained=False, **kwargs):
-    """ ViT-Large model (ViT-L/16) from original paper (https://arxiv.org/abs/2010.11929).
-    """
+    
     model_kwargs = dict(
         patch_size=16, embed_dim=1024, depth=24, num_heads=16, **kwargs)
     model = _create_vision_transformer(pretrained=pretrained, **model_kwargs)

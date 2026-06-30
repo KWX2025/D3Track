@@ -12,11 +12,11 @@ def create_default_local_file():
         'tensorboard_dir': 'self.workspace_dir + \'/tensorboard/\'',
         'pretrained_networks': 'self.workspace_dir + \'/pretrained_networks/\'',
 
-        'gtot_dir':'/data1/andong.lu/data/RGBT_DATA/GTOT/',
-        'rgbt210_dir':'/data2/andong.lu/data/RGBT/RGBT210/',
-        'rgbt234_dir':'/data2/andong.lu/data/RGBT/RGBT234/',
-        'LasHeR_dir':'/data1/andong.lu/data/RGBT_DATA/LasHeR/',
-        'LasHeR_trainingSet_dir' : '/data1/andong.lu/data/RGBT_DATA/LasHeR/',
+        'gtot_dir': empty_str,
+        'rgbt210_dir': empty_str,
+        'rgbt234_dir': empty_str,
+        'LasHeR_dir': empty_str,
+        'LasHeR_trainingSet_dir': empty_str,
 
         'lasot_dir': empty_str,
         'got10k_dir': empty_str,
@@ -32,21 +32,12 @@ def create_default_local_file():
         'davis_dir': empty_str,
         'youtubevos_dir': empty_str})
 
-    comment = {'workspace_dir': 'Base directory for saving network checkpoints.',
-               'tensorboard_dir': 'Directory for tensorboard files.'}
-
     with open(path, 'w') as f:
         f.write('class EnvironmentSettings:\n')
         f.write('    def __init__(self):\n')
 
         for attr, attr_val in default_settings.items():
-            comment_str = None
-            if attr in comment:
-                comment_str = comment[attr]
-            if comment_str is None:
-                f.write('        self.{} = {}\n'.format(attr, attr_val))
-            else:
-                f.write('        self.{} = {}    # {}\n'.format(attr, attr_val, comment_str))
+            f.write('        self.{} = {}\n'.format(attr, attr_val))
 
 
 def create_default_local_file_ITP_train(workspace_dir, data_dir):
@@ -55,12 +46,12 @@ def create_default_local_file_ITP_train(workspace_dir, data_dir):
     empty_str = '\'\''
     default_settings = OrderedDict({
         'workspace_dir': workspace_dir,
-        'tensorboard_dir': os.path.join(workspace_dir, 'tensorboard'),    # Directory for tensorboard files.
+        'tensorboard_dir': os.path.join(workspace_dir, 'tensorboard'),    
         'pretrained_networks': os.path.join(workspace_dir, 'pretrained_networks'),
 
-        'lasher_trainingset_dir' : '/media/ha/2T/datasets/lasher/trainingset/',
-        'lasher_testingset_dir' : '/media/ha/2T/datasets/lasher/testingset/',
-        'lasher_dir' : '/media/ha/2T/datasets/lasher/',
+        'lasher_trainingset_dir': os.path.join(data_dir, 'lasher/trainingset'),
+        'lasher_testingset_dir': os.path.join(data_dir, 'lasher/testingset'),
+        'lasher_dir': os.path.join(data_dir, 'lasher'),
 
 
         'lasot_dir': os.path.join(data_dir, 'lasot'),
@@ -83,24 +74,15 @@ def create_default_local_file_ITP_train(workspace_dir, data_dir):
         'davis_dir': empty_str,
         'youtubevos_dir': empty_str})
 
-    comment = {'workspace_dir': 'Base directory for saving network checkpoints.',
-               'tensorboard_dir': 'Directory for tensorboard files.'}
-
     with open(path, 'w') as f:
         f.write('class EnvironmentSettings:\n')
         f.write('    def __init__(self):\n')
 
         for attr, attr_val in default_settings.items():
-            comment_str = None
-            if attr in comment:
-                comment_str = comment[attr]
-            if comment_str is None:
-                if attr_val == empty_str:
-                    f.write('        self.{} = {}\n'.format(attr, attr_val))
-                else:
-                    f.write('        self.{} = \'{}\'\n'.format(attr, attr_val))
+            if attr_val == empty_str:
+                f.write('        self.{} = {}\n'.format(attr, attr_val))
             else:
-                f.write('        self.{} = \'{}\'    # {}\n'.format(attr, attr_val, comment_str))
+                f.write('        self.{} = \'{}\'\n'.format(attr, attr_val))
 
 
 def env_settings():

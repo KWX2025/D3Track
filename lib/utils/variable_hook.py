@@ -32,7 +32,7 @@ class get_local(object):
             res, values = func(*args, **kwargs)
             if isinstance(values, torch.Tensor):
                 type(self).cache[func.__qualname__].append(values.detach().cpu().numpy())
-            elif isinstance(values, list):  # list of Tensor
+            elif isinstance(values, list):  
                 type(self).cache[func.__qualname__].append([value.detach().cpu().numpy() for value in values])
             else:
                 raise NotImplementedError

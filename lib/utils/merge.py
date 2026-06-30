@@ -2,7 +2,7 @@ import torch
 
 
 def merge_template_search(inp_list, return_search=False, return_template=False):
-    """NOTICE: search region related features must be in the last place"""
+    
     seq_dict = {"feat": torch.cat([x["feat"] for x in inp_list], dim=0),
                 "mask": torch.cat([x["mask"] for x in inp_list], dim=1),
                 "pos": torch.cat([x["pos"] for x in inp_list], dim=0)}
@@ -16,12 +16,11 @@ def merge_template_search(inp_list, return_search=False, return_template=False):
 
 
 def get_qkv(inp_list):
-    """The 1st element of the inp_list is about the template,
-    the 2nd (the last) element is about the search region"""
+    
     dict_x = inp_list[-1]
     dict_c = {"feat": torch.cat([x["feat"] for x in inp_list], dim=0),
               "mask": torch.cat([x["mask"] for x in inp_list], dim=1),
-              "pos": torch.cat([x["pos"] for x in inp_list], dim=0)}  # concatenated dict
+              "pos": torch.cat([x["pos"] for x in inp_list], dim=0)}  
     q = dict_x["feat"] + dict_x["pos"]
     k = dict_c["feat"] + dict_c["pos"]
     v = dict_c["feat"]

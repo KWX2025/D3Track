@@ -1,6 +1,4 @@
-"""
 
-"""
 import math
 import os
 from typing import List
@@ -16,15 +14,11 @@ from lib.utils.box_ops import box_xyxy_to_cxcywh
 from greenlet import greenlet
 
 class OSTrack_DFTrack(nn.Module):
-    """ This is the base class for OSTrack """
+    
 
     def __init__(self, rgb_branch, tir_branch, teacher_rgb, teacher_tir, box_head, box_head_v, box_head_i, \
                  aux_loss=False, head_type="CORNER",mask_probability=0.0, mask_ratio=0.0, training=True):
-        """ Initializes the model.
-        Parameters:
-            transformer: torch module of the transformer architecture.
-            aux_loss: True if auxiliary decoding losses (loss at each decoder layer) are to be used.
-        """
+        
         super().__init__()
         self.igf_module = IRIS(embedding_dim=rgb_branch.embed_dim)
         self.rgb_branch = rgb_branch
@@ -34,7 +28,7 @@ class OSTrack_DFTrack(nn.Module):
         self.rgb_branch.mask_ratio = mask_ratio
         self.tir_branch.mask_ratio = mask_ratio
         self.box_head = box_head
-        # === Projectors for cross-modal alignment (RGB↔TIR) ===
+        
         self.align_rgb2tir = nn.Linear(self.rgb_branch.embed_dim, self.tir_branch.embed_dim, bias=False)
         self.align_tir2rgb = nn.Linear(self.tir_branch.embed_dim, self.rgb_branch.embed_dim, bias=False)
         with torch.no_grad():
@@ -116,7 +110,7 @@ class OSTrack_DFTrack(nn.Module):
 
 
 
-            x_fused, lambda_tokens = self.igf_module(x_rgb, x_tir, return_lambda=True)  # [B,N,C], [B,N,1]
+            x_fused, lambda_tokens = self.igf_module(x_rgb, x_tir, return_lambda=True)  
 
             x_rgb = torch.cat([z_rgb, x_fused], dim=1)
             x_tir = torch.cat([z_tir, x_fused], dim=1)
@@ -131,13 +125,13 @@ class OSTrack_DFTrack(nn.Module):
             out_t_rgb = self.forward_head(t_x_rgb1, None, head=self.box_head_v)
             out['out_t_rgb'] = out_t_rgb
 
-            # === 新增：把 λ 变成 [B,1,H,W] 放进 pred_dict ===
+            
             B = lambda_tokens.shape[0]
             H = W = self.feat_sz_s
             lambda_map = lambda_tokens.permute(0, 2, 1).contiguous().view(B, 1, H, W)
             out['lambda_factor'] = lambda_map
 
-            # 其它辅助（保持原样）
+            
             out.update(aux_dict)
             out['backbone_feat'] = x
             return out
@@ -161,7 +155,7 @@ class OSTrack_DFTrack(nn.Module):
 
 
 
-            x_fused, lambda_tokens = self.igf_module(x_rgb, x_tir, return_lambda=True)  # [B,N,C], [B,N,1]
+            x_fused, lambda_tokens = self.igf_module(x_rgb, x_tir, return_lambda=True)  
 
             x_rgb = torch.cat([z_rgb, x_fused], dim=1)
             x_tir = torch.cat([z_tir, x_fused], dim=1)
@@ -181,20 +175,18 @@ class OSTrack_DFTrack(nn.Module):
             return out
 
     def forward_head(self, cat_feature, gt_score_map=None, head=None):
-        """
-        cat_feature: output embeddings of the backbone, it can be (HW1+HW2, B, C) or (HW2, B, C)
-        """
+        
         if head==None:
             box_head = self.box_head
         else:
             box_head = head
-        enc_opt = cat_feature[:, -self.feat_len_s:]  # encoder output for the search region (B, HW, C)
+        enc_opt = cat_feature[:, -self.feat_len_s:]  
         opt = (enc_opt.unsqueeze(-1)).permute((0, 3, 2, 1)).contiguous()
         bs, Nq, C, HW = opt.size()
         opt_feat = opt.view(-1, C, self.feat_sz_s, self.feat_sz_s)
 
         if self.head_type == "CORNER":
-            # run the corner head
+            
             pred_box, score_map = box_head(opt_feat, True)
             outputs_coord = box_xyxy_to_cxcywh(pred_box)
             outputs_coord_new = outputs_coord.view(bs, Nq, 4)

@@ -1,15 +1,13 @@
-"""
-TODO: 填入结果文件的路径信息，评估跟踪器
-"""
+
 
 from rgbt.utils import RGBT_start
-import rgbt     # pip install rgbt==1.0.1   github: https://github.com/opacity-black/RGBT_toolkit
+import rgbt     
 from seqList import *
 RGBT_start()
 gtot = rgbt.GTOT()
 
 
-result_path="your tracking result path"   # 
+result_path="your tracking result path"   
 seq_list,length = where_seq_already(result_path, prefix="")
 print("seq num: ", length)
 
@@ -23,9 +21,9 @@ gtot(
 )
 
 
-# 画图
-# gtot.draw_attributeRadar(metric_fun=gtot.MPR, filename="eval_tracker/CAiATrack_RGBT234_MPR.png")
-# gtot.draw_attributeRadar(metric_fun=gtot.MSR, filename="eval_tracker/CAiATrack_RGBT234_MSR.png")
+
+
+
 
 if __name__=="__main__":
 

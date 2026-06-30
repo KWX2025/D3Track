@@ -17,7 +17,7 @@ class RGBT234_lmdb(BaseVideoDataset):
         root = env_settings().lmdb_dir if root is None else root
         super().__init__('RGBT234_lmdb', root, image_loader)
 
-        # video_name for each sequence
+        
         self.sequence_list = os.listdir(env_settings().rgbt234_dir)
 
         if data_fraction is not None:
@@ -30,12 +30,12 @@ class RGBT234_lmdb(BaseVideoDataset):
 
     def _read_bb_anno(self, seq_path):
         bb_anno_file = seq_path+'.init_lbl'
-        gt_str_list = decode_str(self.root, bb_anno_file)  # the last line is empty
-        gt_str_list = gt_str_list.split('\r\n')  if '\r\n' in gt_str_list else gt_str_list.split('\n')## the last line is empty
+        gt_str_list = decode_str(self.root, bb_anno_file)  
+        gt_str_list = gt_str_list.split('\r\n')  if '\r\n' in gt_str_list else gt_str_list.split('\n')
         while gt_str_list[-1]=='':
             del gt_str_list[-1]
         gt_list = [list(map(float, line.split(','))) for line in gt_str_list]
-        # gt_list = [np.fromstring(line, sep=',') for line in gt_str_list]
+        
         gt_arr = np.array(gt_list).astype(np.float32)
         return torch.tensor(gt_arr)
 
@@ -49,14 +49,14 @@ class RGBT234_lmdb(BaseVideoDataset):
 
     def _get_frame_v(self, seq_path, frame_id):
         frame_path_v = seq_path + '.visible.' + str(frame_id)
-        # frame_path_v = os.path.join(seq_path, 'visible', sorted([p for p in os.listdir(os.path.join(seq_path, 'visible')) if os.path.splitext(p)[1] in ['.jpg','.png','.bmp']])[frame_id])
-        # return self.image_loader(frame_path_v)
+        
+        
         return decode_img(self.root, frame_path_v)
         
     def _get_frame_i(self, seq_path, frame_id):
         frame_path_i = seq_path + '.infrared.' + str(frame_id)
-        # frame_path_i = os.path.join(seq_path, 'infrared', sorted([p for p in os.listdir(os.path.join(seq_path, 'infrared')) if os.path.splitext(p)[1] in ['.jpg','.png','.bmp']])[frame_id])
-        # return self.image_loader(frame_path_i)
+        
+        
         return decode_img(self.root, frame_path_i)
 
     def get_frames(self, seq_id, frame_ids, anno=None):
@@ -64,8 +64,8 @@ class RGBT234_lmdb(BaseVideoDataset):
         seq_path = self.key_root+seq_name
         frame_list_v = [self._get_frame_v(seq_path, f) for f in frame_ids]
         frame_list_i = [self._get_frame_i(seq_path, f) for f in frame_ids]
-        frame_list  = frame_list_v + frame_list_i # 6
-        #print('get_frames frame_list', len(frame_list))
+        frame_list  = frame_list_v + frame_list_i 
+        
         if anno is None:
             anno = self.get_sequence_info(seq_path)
 
@@ -79,5 +79,5 @@ class RGBT234_lmdb(BaseVideoDataset):
                                    'root_class': None,
                                    'motion_adverb': None})
 
-        #return frame_list_v, frame_list_i, anno_frames, object_meta
+        
         return frame_list, anno_frames, object_meta

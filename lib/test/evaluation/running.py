@@ -9,7 +9,7 @@ import torch
 
 
 def _save_tracker_output(seq: Sequence, tracker: Tracker, output: dict):
-    """Saves the output of the tracker."""
+    
     
     if not os.path.exists(tracker.results_dir):
         print("create tracking result dir:", tracker.results_dir)
@@ -31,7 +31,7 @@ def _save_tracker_output(seq: Sequence, tracker: Tracker, output: dict):
         np.savetxt(file, scores, delimiter='\t', fmt='%.2f')
 
     def save_score_map(file, data):
-        # data: t, 16, 16
+        
         scores = np.array(torch.cat(data, dim=-2).cpu()).astype(float)[0,0]
         np.savetxt(file, scores, delimiter='\t', fmt='%.2f')
 
@@ -46,7 +46,7 @@ def _save_tracker_output(seq: Sequence, tracker: Tracker, output: dict):
         return data_dict
 
     for key, data in output.items():
-        # If data is empty
+        
         if not data:
             continue
 
@@ -58,7 +58,7 @@ def _save_tracker_output(seq: Sequence, tracker: Tracker, output: dict):
                     bbox_file = '{}_{}.txt'.format(base_results_path, obj_id)
                     save_bb(bbox_file, d)
             else:
-                # Single-object mode
+                
                 bbox_file = '{}.txt'.format(base_results_path)
                 save_bb(bbox_file, data)
 
@@ -70,7 +70,7 @@ def _save_tracker_output(seq: Sequence, tracker: Tracker, output: dict):
                     bbox_file = '{}_{}_choice.txt'.format(base_results_path, obj_id)
                     save_bb(bbox_file, d)
             else:
-                # Single-object mode
+                
                 bbox_file = '{}_choice.txt'.format(base_results_path)
                 save_bb(bbox_file, data)
 
@@ -82,7 +82,7 @@ def _save_tracker_output(seq: Sequence, tracker: Tracker, output: dict):
                     bbox_file = '{}_{}_all_boxes.txt'.format(base_results_path, obj_id)
                     save_bb(bbox_file, d)
             else:
-                # Single-object mode
+                
                 bbox_file = '{}_all_boxes.txt'.format(base_results_path)
                 save_bb(bbox_file, data)
 
@@ -94,7 +94,7 @@ def _save_tracker_output(seq: Sequence, tracker: Tracker, output: dict):
                     bbox_file = '{}_{}_all_scores.txt'.format(base_results_path, obj_id)
                     save_score(bbox_file, d)
             else:
-                # Single-object mode
+                
                 print("saving scores...")
                 bbox_file = '{}_all_scores.txt'.format(base_results_path)
                 save_score(bbox_file, data)
@@ -108,7 +108,7 @@ def _save_tracker_output(seq: Sequence, tracker: Tracker, output: dict):
                     bbox_file = '{}_{}_all_score_maps.txt'.format(base_results_path, obj_id)
                     save_score_map(bbox_file, d)
             else:
-                # Single-object mode
+                
                 print("saving score map...")
                 bbox_file = '{}_all_score_maps.txt'.format(base_results_path)
                 save_score_map(bbox_file, data)
@@ -121,7 +121,7 @@ def _save_tracker_output(seq: Sequence, tracker: Tracker, output: dict):
                     bbox_file = '{}_{}_all_score_maps_2.txt'.format(base_results_path, obj_id)
                     save_score_map(bbox_file, d)
             else:
-                # Single-object mode
+                
                 print("saving score map...")
                 bbox_file = '{}_all_score_maps_2.txt'.format(base_results_path)
                 save_score_map(bbox_file, data)
@@ -140,8 +140,8 @@ def _save_tracker_output(seq: Sequence, tracker: Tracker, output: dict):
 
 
 def run_sequence(seq: Sequence, tracker: Tracker, debug=False, num_gpu=8):
-    """Runs a tracker on a sequence."""
-    '''2021.1.2 Add multiple gpu support'''
+    
+    
     try:
         worker_name = multiprocessing.current_process().name
         worker_id = int(worker_name[worker_name.find('-') + 1:]) - 1
@@ -152,10 +152,10 @@ def run_sequence(seq: Sequence, tracker: Tracker, debug=False, num_gpu=8):
 
     def _results_exist():
         if seq.object_ids is None:
-            # if seq.dataset in ['rgbt234', 'gtot','rgbt210','lasher','lashertestingset']:
-            #     base_results_path = os.path.join(tracker.results_dir, seq.dataset, seq.name)
-            #     bbox_file = 'ostrack_cat_{}.txt'.format(base_results_path)
-            # else:
+            
+            
+            
+            
             bbox_file = '{}/{}/{}.txt'.format(tracker.results_dir, seq.dataset, seq.name)
             return os.path.isfile(bbox_file)
         else:
@@ -194,13 +194,7 @@ def run_sequence(seq: Sequence, tracker: Tracker, debug=False, num_gpu=8):
 
 
 def run_dataset(dataset, trackers, debug=False, threads=0, num_gpus=8):
-    """Runs a list of trackers on a dataset.
-    args:
-        dataset: List of Sequence instances, forming a dataset.
-        trackers: List of Tracker instances.
-        debug: Debug level.
-        threads: Number of threads to use (default 0).
-    """
+    
     multiprocessing.set_start_method('spawn', force=True)
 
     print('Evaluating {:4d} trackers on {:5d} sequences'.format(len(trackers), len(dataset)))

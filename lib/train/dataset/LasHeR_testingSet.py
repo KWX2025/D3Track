@@ -16,7 +16,7 @@ class LasHeR_testingSet(BaseVideoDataset):
         self.root = env_settings().lasher_dir if root is None else root
         super().__init__('LasHeR_testingSet', root, image_loader)
 
-        # video_name for each sequence
+        
         self.sequence_list = ['10runone', '11leftboy', '11runtwo', '1blackteacher', '1boycoming', '1stcol4thboy',
                               '1strowleftboyturning', '1strowrightdrillmaster', '1strowrightgirl3540', '2girl',
                               '2girlup', '2runseven', '3bike1', '3men', '3pinkleft', '3rdfatboy', '3rdgrouplastboy',
@@ -74,7 +74,7 @@ class LasHeR_testingSet(BaseVideoDataset):
                               'yellowskirt']
 
         self.attr = attr
-        with open('/media/ha/2T/datasets/lasher/testingset/testingsetList.txt') as f:
+        with open(os.path.join(self.root, 'testingsetList.txt')) as f:
             attr_list = f.read().replace(' ', '').split(',')
         if attr is not None and isinstance(attr, str):
             assert attr in attr_list
@@ -140,7 +140,7 @@ class LasHeR_testingSet(BaseVideoDataset):
         seq_path = os.path.join(self.root, seq_name)
         frame_list_v = [self._get_frame_v(seq_path, f) for f in frame_ids]
         frame_list_i = [self._get_frame_i(seq_path, f) for f in frame_ids]
-        frame_list = frame_list_v + frame_list_i  # 6
+        frame_list = frame_list_v + frame_list_i  
         if seq_name not in self.sequence_list:
             print('warning!!!' * 100)
         if anno is None:
@@ -156,5 +156,5 @@ class LasHeR_testingSet(BaseVideoDataset):
                                    'root_class': None,
                                    'motion_adverb': None})
 
-        # return frame_list_v, frame_list_i, anno_frames, object_meta
+        
         return frame_list, anno_frames, object_meta

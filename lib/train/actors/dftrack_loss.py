@@ -36,7 +36,7 @@ class DFTrack_loss(BaseLoss):
             y = self.instanceNorm(y)
         return self.dualDistill_loss(x, y)
     def cosine_distill(self, x: torch.Tensor, y: torch.Tensor):
-        # x, y: [B, C, N]
+        
         x = x.view(x.size(0), x.size(1), -1)
         y = y.view(y.size(0), y.size(1), -1)
         x = nn.functional.normalize(x, dim=1)
@@ -44,9 +44,9 @@ class DFTrack_loss(BaseLoss):
         return 1 - (x * y).sum(1).mean()
 
     def cross_distill_high(self, x: torch.Tensor, y: torch.Tensor, score_map_gt: torch.Tensor, **arg_dict):
-        # 去风格 B,N,C -> B,C,N
-        x = self.instanceNorm(x.transpose(-1, -2))  # B, C, N
-        y = self.instanceNorm(y.transpose(-1, -2))  # B, C, N
+        
+        x = self.instanceNorm(x.transpose(-1, -2))  
+        y = self.instanceNorm(y.transpose(-1, -2))  
 
         return self.cosine_distill(x, y)
 

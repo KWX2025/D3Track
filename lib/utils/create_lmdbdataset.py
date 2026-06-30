@@ -1,7 +1,7 @@
 import lmdb
 import os
 import sys
-prj_path = os.path.join("/media/data2/zhaogaotian/OSTrack_lad/")
+prj_path = os.getcwd()
 if prj_path not in sys.path:
     sys.path.append(prj_path)
 from lib.train.dataset.rgbt234 import RGBT234
@@ -10,23 +10,12 @@ from lib.train.dataset.gtot import GTOT
 from lib.train.dataset.LasHeR_trainingSet import LasHeR_trainingSet
 from lib.train.dataset.LasHeR_testingSet import LasHeR_testingSet
 
-"""
-图像存储方式：二进制
-数据集名称.序列名称.visible.id
-数据集名称.序列名称.infrared.id
-【数据集名称：lasher_trainingset, rgbt234, lasher_testingset】
-【id：0,1,2,3,4,5,6,7,...，从0开始】
 
-标签存储方式：二进制字符串
-数据集名称.序列名称.init_lbl
-数据集名称.序列名称.visible_lbl
-数据集名称.序列名称.infrared_lbl
-"""
 
 
 class LmdbDataset:
     def __init__(self, lmdb_path, map_size=None) -> None:
-        # map_size:单位是B
+        
         if map_size==None:
             self._lmdb_env = lmdb.open(lmdb_path)
         else:
@@ -47,7 +36,7 @@ class LmdbDataset:
         self._lmdb_env.close()
 
     def img2bin(self, img_path):
-        # 读取图像文件并转成二进制格式
+        
         with open(img_path, 'rb') as f:
             image_bin = f.read()
         return image_bin
@@ -69,36 +58,25 @@ class LmdbDataset:
 
 
 
-"""
-图像存储方式：二进制
-数据集名称.序列名称.visible.id
-数据集名称.序列名称.infrared.id
-【数据集名称：lasher_trainingset, rgbt234, lasher_testingset】
-【id：0,1,2,3,4,5,6,7,...，从0开始】
 
-标签存储方式：二进制字符串
-数据集名称.序列名称.init_lbl
-数据集名称.序列名称.visible_lbl
-数据集名称.序列名称.infrared_lbl
-"""
 if __name__=="__main__":
 
     dataset = [
-        # RGBT234('/media/data2/zhaogaotian/dataset/RGBT234/'), 
-        LasHeR_trainingSet('/media/data2/zhaogaotian/dataset/LasHeR/'), 
-        LasHeR_testingSet('/media/data2/zhaogaotian/dataset/LasHeR/')]
+        
+        LasHeR_trainingSet(''),
+        LasHeR_testingSet('')]
 
-    # 创建
-    dataset_path = "/media/data1/zhaogaotian/lmdb_dataset/"
-    map_size = 1024*1024*1024*320       # 320GB
+    
+    dataset_path = ""
+    map_size = 1024*1024*1024*320       
     lds = LmdbDataset(dataset_path, map_size)
-    # lds = LmdbDataset(dataset_path)
+    
 
-    # 数据集
+    
     for datas in dataset:
         dataset_name = datas.get_name().lower()
 
-        # 序列
+        
         for seq_id in range(len(datas.sequence_list)):
             lds.begin()
             seq_name = datas.sequence_list[seq_id]
@@ -113,7 +91,7 @@ if __name__=="__main__":
             else:
                 print(dataset_name, seq_id, seq_name)
 
-            # 图像
+            
             frame_path_v=[]
             for item in sorted([p for p in os.listdir(os.path.join(seq_path, 'visible')) if os.path.splitext(p)[1] in ['.jpg','.png','.bmp']]):
                 frame_path_v.append( os.path.join(seq_path, 'visible', item) )
@@ -132,7 +110,7 @@ if __name__=="__main__":
                 t_key = key+'.visible.'+str(i)
                 if not lds.is_exist(t_key):
                     lds.write_img(t_key, frame_path)
-            # 标签
+            
             if not lds.is_exist(key+'.init_lbl'):
                 lds.write_label(key+'.init_lbl', os.path.join(seq_path, 'init.txt'))
             if not lds.is_exist(key+'.visible_lbl'):
@@ -141,5 +119,5 @@ if __name__=="__main__":
                 lds.write_label(key+'.infrared_lbl', os.path.join(seq_path, 'infrared.txt'))
             lds.commit()
 
-    # 结束会话
+    
     lds.end()

@@ -6,14 +6,12 @@ import csv
 import pandas
 from collections import OrderedDict
 import sys
-# from .base_dataset import BaseDataset
+
 from .base_video_dataset import BaseVideoDataset
 from lib.train.data.image_loader import opencv_loader, jpeg4py_loader
 from lib.train.admin.environment import env_settings
 
-"""
-from https://github.com/zhang-pengyu/HMFT/
-"""
+
 
 class VTUAV(BaseVideoDataset):
 
@@ -26,24 +24,24 @@ class VTUAV(BaseVideoDataset):
         root = env_settings().UAV_RGBT_dir if root is None else root
         super().__init__("VTUAV", root, image_loader)
 
-        # all folders inside the root
+        
 
-        # seq_id is the index of the folder inside the got10k root path
+        
         if split is not None:
             if split == 'train':
-                # file_path = os.path.join(ltr_path,  'ST_train_split.txt')
+                
                 file_path = os.path.join(self.root,  'train')
             elif split == 'val_st':
-                # file_path = os.path.join(ltr_path, 'ST_val_split.txt')
+                
                 file_path = os.path.join(self.root, 'test_ST', 'test_ST')
             elif split == 'val_lt':
                 file_path = os.path.join(self.root, 'test_LT')
             else:
                 raise ValueError('Unknown split name.')
-            # sequence_list = pandas.read_csv(file_path, header=None, squeeze=True).values.tolist()
+            
             sequence_list = os.listdir(file_path)
             self.root = file_path
-        # self.seq_ids = seq_ids
+        
         self.init_idx = np.load("./lib/train/init_frame.npy", allow_pickle=True).item()
         self.sequence_list = sequence_list
 
@@ -53,17 +51,17 @@ class VTUAV(BaseVideoDataset):
     def has_class_info(self):
         return True
 
-    # def _build_seq_per_class(self):
-    #     seq_per_class = {}
+    
+    
 
-    #     for i, s in enumerate(self.sequence_list):
-    #         object_class = self.sequence_meta_info[s]['object_class']
-    #         if object_class in seq_per_class:
-    #             seq_per_class[object_class].append(i)
-    #         else:
-    #             seq_per_class[object_class] = [i]
+    
+    
+    
+    
+    
+    
 
-    #     return seq_per_class
+    
 
     def _get_sequence_list(self):
         return os.listdir(self.root)
@@ -81,7 +79,7 @@ class VTUAV(BaseVideoDataset):
         return torch.tensor(gt)
 
     def _read_target_visible(self, seq_path):
-        # Read full occlusion and out_of_view
+        
         occlusion_file = os.path.join(seq_path, "absence.label")
         cover_file = os.path.join(seq_path, "cover.label")
 
@@ -114,7 +112,7 @@ class VTUAV(BaseVideoDataset):
         else:
             init_idx = 0
         nz = 6
-        return os.path.join(seq_path, modality, str(frame_id*10+init_idx).zfill(nz)+'.jpg')    # frames start from 1
+        return os.path.join(seq_path, modality, str(frame_id*10+init_idx).zfill(nz)+'.jpg')    
 
     def _get_frame(self, seq_path, modality, frame_id):
         return self.image_loader(self._get_frame_path(seq_path, modality, frame_id))
@@ -146,6 +144,6 @@ class VTUAV(BaseVideoDataset):
         anno_frames = {}
         for key, value in anno.items():
             anno_frames[key] = [value[f_id, ...].clone() for f_id in frame_ids]
-            #anno_frames[key] = [value[f_id, ...].clone() for f_id in frame_ids] + [value[f_id, ...].clone() for f_id in frame_ids]
+            
         
         return frame_list, anno_frames, {}

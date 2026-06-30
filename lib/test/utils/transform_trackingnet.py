@@ -22,10 +22,10 @@ def transform_trackingnet(tracker_name, cfg_name):
             dest_path = os.path.join(dest_dir, item)
             bbox_arr = np.loadtxt(src_path, dtype=np.int, delimiter='\t')
             np.savetxt(dest_path, bbox_arr, fmt='%d', delimiter=',')
-    # make zip archive
+    
     shutil.make_archive(src_dir, "zip", src_dir)
     shutil.make_archive(dest_dir, "zip", dest_dir)
-    # Remove the original files
+    
     shutil.rmtree(src_dir)
     shutil.rmtree(dest_dir)
 

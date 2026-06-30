@@ -3,15 +3,7 @@ import torch
 
 
 def generate_heatmap(bboxes, patch_size=320, stride=16):
-    """
-    Generate ground truth heatmap same as CenterNet
-    Args:
-        bboxes (torch.Tensor): shape of [num_search, bs, 4]
-
-    Returns:
-        gaussian_maps: list of generated heatmap
-
-    """
+    
     gaussian_maps = []
     heatmap_size = patch_size // stride
     for single_patch_bboxes in bboxes:
@@ -38,12 +30,8 @@ class CenterNetHeatMap(object):
 
     @staticmethod
     def get_gaussian_radius(box_size, min_overlap):
-        """
-        copyed from CornerNet
-        box_size (w, h), it could be a torch.Tensor, numpy.ndarray, list or tuple
-        notice: we are using a bug-version, please refer to fix bug version in CornerNet
-        """
-        # box_tensor = torch.Tensor(box_size)
+        
+        
         box_tensor = box_size
         width, height = box_tensor[..., 0], box_tensor[..., 1]
 
@@ -69,7 +57,7 @@ class CenterNetHeatMap(object):
 
     @staticmethod
     def gaussian2D(radius, sigma=1):
-        # m, n = [(s - 1.) / 2. for s in shape]
+        
         m, n = radius
         y, x = np.ogrid[-m: m + 1, -n: n + 1]
 
@@ -93,13 +81,11 @@ class CenterNetHeatMap(object):
         if min(masked_gaussian.shape) > 0 and min(masked_fmap.shape) > 0:
             masked_fmap = torch.max(masked_fmap, masked_gaussian * k)
             fmap[y - top: y + bottom, x - left: x + right] = masked_fmap
-        # return fmap
+        
 
 
 def compute_grids(features, strides):
-    """
-    grids regret to the input image size
-    """
+    
     grids = []
     for level, feature in enumerate(features):
         h, w = feature.size()[-2:]
@@ -121,19 +107,14 @@ def compute_grids(features, strides):
 
 
 def get_center3x3(locations, centers, strides, range=3):
-    '''
-    Inputs:
-        locations: M x 2
-        centers: N x 2
-        strides: M
-    '''
+    
     range = (range - 1) / 2
     M, N = locations.shape[0], centers.shape[0]
-    locations_expanded = locations.view(M, 1, 2).expand(M, N, 2)  # M x N x 2
-    centers_expanded = centers.view(1, N, 2).expand(M, N, 2)  # M x N x 2
-    strides_expanded = strides.view(M, 1, 1).expand(M, N, 2)  # M x N
+    locations_expanded = locations.view(M, 1, 2).expand(M, N, 2)  
+    centers_expanded = centers.view(1, N, 2).expand(M, N, 2)  
+    strides_expanded = strides.view(M, 1, 1).expand(M, N, 2)  
     centers_discret = ((centers_expanded / strides_expanded).int() * strides_expanded).float() + \
-                      strides_expanded / 2  # M x N x 2
+                      strides_expanded / 2  
     dist_x = (locations_expanded[:, :, 0] - centers_discret[:, :, 0]).abs()
     dist_y = (locations_expanded[:, :, 1] - centers_discret[:, :, 1]).abs()
     return (dist_x <= strides_expanded[:, :, 0] * range) & \

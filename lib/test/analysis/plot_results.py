@@ -32,7 +32,7 @@ def get_plot_draw_styles():
 
 
 def check_eval_data_is_valid(eval_data, trackers, dataset):
-    """ Checks if the pre-computed results are valid"""
+    
     seq_names = [s.name for s in dataset]
     seq_names_saved = eval_data['sequences']
 
@@ -102,7 +102,7 @@ def get_tracker_display_name(tracker):
 def plot_draw_save(y, x, scores, trackers, plot_draw_styles, result_plot_path, plot_opts):
     plt.rcParams['text.usetex']=True
     plt.rcParams["font.family"] = "Times New Roman"
-    # Plot settings
+    
     font_size = plot_opts.get('font_size', 20)
     font_size_axis = plot_opts.get('font_size_axis', 20)
     line_width = plot_opts.get('line_width', 2)
@@ -145,7 +145,7 @@ def plot_draw_save(y, x, scores, trackers, plot_draw_styles, result_plot_path, p
         legend_text.append('{} [{:.1f}]'.format(disp_name, scores[id_sort]))
 
     try:
-        # add bold to our method
+        
         for i in range(1,2):
             legend_text[-i] = r'\textbf{%s}'%(legend_text[-i])
 
@@ -168,10 +168,10 @@ def plot_draw_save(y, x, scores, trackers, plot_draw_styles, result_plot_path, p
 
 
 def check_and_load_precomputed_results(trackers, dataset, report_name, force_evaluation=False, **kwargs):
-    # Load data
+    
     settings = env_settings()
 
-    # Load pre-computed results
+    
     result_plot_path = os.path.join(settings.result_plot_path, report_name)
     eval_data_path = os.path.join(result_plot_path, 'eval_data.pkl')
 
@@ -179,15 +179,15 @@ def check_and_load_precomputed_results(trackers, dataset, report_name, force_eva
         with open(eval_data_path, 'rb') as fh:
             eval_data = pickle.load(fh)
     else:
-        # print('Pre-computed evaluation data not found. Computing results!')
+        
         eval_data = extract_results(trackers, dataset, report_name, **kwargs)
 
     if not check_eval_data_is_valid(eval_data, trackers, dataset):
-        # print('Pre-computed evaluation data invalid. Re-computing results!')
+        
         eval_data = extract_results(trackers, dataset, report_name, **kwargs)
-        # pass
+        
     else:
-        # Update display names
+        
         tracker_names = [{'name': t.name, 'param': t.parameter_name, 'run_id': t.run_id, 'disp_name': t.display_name}
                          for t in trackers]
         eval_data['trackers'] = tracker_names
@@ -214,27 +214,17 @@ def get_prec_curve(ave_success_rate_plot_center, valid_sequence):
 
 def plot_results(trackers, dataset, report_name, merge_results=False,
                  plot_types=('success'), force_evaluation=False, **kwargs):
-    """
-    Plot results for the given trackers
-
-    args:
-        trackers - List of trackers to evaluate
-        dataset - List of sequences to evaluate
-        report_name - Name of the folder in env_settings.perm_mat_path where the computed results and plots are saved
-        merge_results - If True, multiple random runs for a non-deterministic trackers are averaged
-        plot_types - List of scores to display. Can contain 'success',
-                    'prec' (precision), and 'norm_prec' (normalized precision)
-    """
-    # Load data
+    
+    
     settings = env_settings()
 
     plot_draw_styles = get_plot_draw_styles()
 
-    # Load pre-computed results
+    
     result_plot_path = os.path.join(settings.result_plot_path, report_name)
     eval_data = check_and_load_precomputed_results(trackers, dataset, report_name, force_evaluation, **kwargs)
 
-    # Merge results from multiple runs
+    
     if merge_results:
         eval_data = merge_multiple_runs(eval_data)
 
@@ -246,11 +236,11 @@ def plot_results(trackers, dataset, report_name, merge_results=False,
 
     print('\nGenerating plots for: {}'.format(report_name))
 
-    # ********************************  Success Plot **************************************
+    
     if 'success' in plot_types:
         ave_success_rate_plot_overlap = torch.tensor(eval_data['ave_success_rate_plot_overlap'])
 
-        # Index out valid sequences
+        
         auc_curve, auc = get_auc_curve(ave_success_rate_plot_overlap, valid_sequence)
         threshold_set_overlap = torch.tensor(eval_data['threshold_set_overlap'])
 
@@ -258,11 +248,11 @@ def plot_results(trackers, dataset, report_name, merge_results=False,
                              'ylabel': 'Overlap Precision [%]', 'xlim': (0, 1.0), 'ylim': (0, 88), 'title': 'Success'}
         plot_draw_save(auc_curve, threshold_set_overlap, auc, tracker_names, plot_draw_styles, result_plot_path, success_plot_opts)
 
-    # ********************************  Precision Plot **************************************
+    
     if 'prec' in plot_types:
         ave_success_rate_plot_center = torch.tensor(eval_data['ave_success_rate_plot_center'])
 
-        # Index out valid sequences
+        
         prec_curve, prec_score = get_prec_curve(ave_success_rate_plot_center, valid_sequence)
         threshold_set_center = torch.tensor(eval_data['threshold_set_center'])
 
@@ -272,11 +262,11 @@ def plot_results(trackers, dataset, report_name, merge_results=False,
         plot_draw_save(prec_curve, threshold_set_center, prec_score, tracker_names, plot_draw_styles, result_plot_path,
                        precision_plot_opts)
 
-    # ********************************  Norm Precision Plot **************************************
+    
     if 'norm_prec' in plot_types:
         ave_success_rate_plot_center_norm = torch.tensor(eval_data['ave_success_rate_plot_center_norm'])
 
-        # Index out valid sequences
+        
         prec_curve, prec_score = get_prec_curve(ave_success_rate_plot_center_norm, valid_sequence)
         threshold_set_center_norm = torch.tensor(eval_data['threshold_set_center_norm'])
 
@@ -303,7 +293,7 @@ def generate_formatted_report(row_labels, scores, table_name=''):
     report_text = '{prev}\n'.format(prev=report_text)
 
     for trk_id, d_name in enumerate(row_labels):
-        # display name
+        
         report_text = '{prev}{tracker: <{width}} |'.format(prev=report_text, tracker=d_name,
                                                            width=name_width)
         for (score_type, score_value), s_w in zip(scores.items(), score_widths):
@@ -317,19 +307,11 @@ def generate_formatted_report(row_labels, scores, table_name=''):
 
 def print_results(trackers, dataset, report_name, merge_results=False,
                   plot_types=('success'), **kwargs):
-    """ Print the results for the given trackers in a formatted table
-    args:
-        trackers - List of trackers to evaluate
-        dataset - List of sequences to evaluate
-        report_name - Name of the folder in env_settings.perm_mat_path where the computed results and plots are saved
-        merge_results - If True, multiple random runs for a non-deterministic trackers are averaged
-        plot_types - List of scores to display. Can contain 'success' (prints AUC, OP50, and OP75 scores),
-                    'prec' (prints precision score), and 'norm_prec' (prints normalized precision score)
-    """
-    # Load pre-computed results
+    
+    
     eval_data = check_and_load_precomputed_results(trackers, dataset, report_name, **kwargs)
 
-    # Merge results from multiple runs
+    
     if merge_results:
         eval_data = merge_multiple_runs(eval_data)
 
@@ -340,52 +322,42 @@ def print_results(trackers, dataset, report_name, merge_results=False,
 
     scores = {}
 
-    # ********************************  Success Plot **************************************
+    
     if 'success' in plot_types:
         threshold_set_overlap = torch.tensor(eval_data['threshold_set_overlap'])
         ave_success_rate_plot_overlap = torch.tensor(eval_data['ave_success_rate_plot_overlap'])
 
-        # Index out valid sequences
+        
         auc_curve, auc = get_auc_curve(ave_success_rate_plot_overlap, valid_sequence)
         scores['AUC'] = auc
         scores['OP50'] = auc_curve[:, threshold_set_overlap == 0.50]
         scores['OP75'] = auc_curve[:, threshold_set_overlap == 0.75]
 
-    # ********************************  Precision Plot **************************************
+    
     if 'prec' in plot_types:
         ave_success_rate_plot_center = torch.tensor(eval_data['ave_success_rate_plot_center'])
 
-        # Index out valid sequences
+        
         prec_curve, prec_score = get_prec_curve(ave_success_rate_plot_center, valid_sequence)
         scores['Precision'] = prec_score
 
-    # ********************************  Norm Precision Plot *********************************
+    
     if 'norm_prec' in plot_types:
         ave_success_rate_plot_center_norm = torch.tensor(eval_data['ave_success_rate_plot_center_norm'])
 
-        # Index out valid sequences
+        
         norm_prec_curve, norm_prec_score = get_prec_curve(ave_success_rate_plot_center_norm, valid_sequence)
         scores['Norm Precision'] = norm_prec_score
 
-    # Print
+    
     tracker_disp_names = [get_tracker_display_name(trk) for trk in tracker_names]
     report_text = generate_formatted_report(tracker_disp_names, scores, table_name=report_name)
     print(report_text)
 
 
 def plot_got_success(trackers, report_name):
-    """ Plot success plot for GOT-10k dataset using the json reports.
-    Save the json reports from http://got-10k.aitestunion.com/leaderboard in the directory set to
-    env_settings.got_reports_path
-
-    The tracker name in the experiment file should be set to the name of the report file for that tracker,
-    e.g. DiMP50_report_2019_09_02_15_44_25 if the report is name DiMP50_report_2019_09_02_15_44_25.json
-
-    args:
-        trackers - List of trackers to evaluate
-        report_name - Name of the folder in env_settings.perm_mat_path where the computed results and plots are saved
-    """
-    # Load data
+    
+    
     settings = env_settings()
     plot_draw_styles = get_plot_draw_styles()
 
@@ -394,7 +366,7 @@ def plot_got_success(trackers, report_name):
     auc_curve = torch.zeros((len(trackers), 101))
     scores = torch.zeros(len(trackers))
 
-    # Load results
+    
     tracker_names = []
     for trk_id, trk in enumerate(trackers):
         json_path = '{}/{}.json'.format(settings.got_reports_path, trk.name)
@@ -408,7 +380,7 @@ def plot_got_success(trackers, report_name):
         if len(eval_data.keys()) > 1:
             raise Exception
 
-        # First field is the tracker name. Index it out
+        
         eval_data = eval_data[list(eval_data.keys())[0]]
         if 'succ_curve' in eval_data.keys():
             curve = eval_data['succ_curve']
@@ -436,31 +408,11 @@ def plot_got_success(trackers, report_name):
 
 def print_per_sequence_results(trackers, dataset, report_name, merge_results=False,
                                filter_criteria=None, **kwargs):
-    """ Print per-sequence results for the given trackers. Additionally, the sequences to list can be filtered using
-    the filter criteria.
-
-    args:
-        trackers - List of trackers to evaluate
-        dataset - List of sequences to evaluate
-        report_name - Name of the folder in env_settings.perm_mat_path where the computed results and plots are saved
-        merge_results - If True, multiple random runs for a non-deterministic trackers are averaged
-        filter_criteria - Filter sequence results which are reported. Following modes are supported
-                        None: No filtering. Display results for all sequences in dataset
-                        'ao_min': Only display sequences for which the minimum average overlap (AO) score over the
-                                  trackers is less than a threshold filter_criteria['threshold']. This mode can
-                                  be used to select sequences where at least one tracker performs poorly.
-                        'ao_max': Only display sequences for which the maximum average overlap (AO) score over the
-                                  trackers is less than a threshold filter_criteria['threshold']. This mode can
-                                  be used to select sequences all tracker performs poorly.
-                        'delta_ao': Only display sequences for which the performance of different trackers vary by at
-                                    least filter_criteria['threshold'] in average overlap (AO) score. This mode can
-                                    be used to select sequences where the behaviour of the trackers greatly differ
-                                    between each other.
-    """
-    # Load pre-computed results
+    
+    
     eval_data = check_and_load_precomputed_results(trackers, dataset, report_name, **kwargs)
 
-    # Merge results from multiple runs
+    
     if merge_results:
         eval_data = merge_multiple_runs(eval_data)
 
@@ -469,7 +421,7 @@ def print_per_sequence_results(trackers, dataset, report_name, merge_results=Fal
     sequence_names = eval_data['sequences']
     avg_overlap_all = torch.tensor(eval_data['avg_overlap_all']) * 100.0
 
-    # Filter sequences
+    
     if filter_criteria is not None:
         if filter_criteria['mode'] == 'ao_min':
             min_ao = avg_overlap_all.min(dim=1)[0]
@@ -497,19 +449,11 @@ def print_per_sequence_results(trackers, dataset, report_name, merge_results=Fal
 
 def print_results_per_video(trackers, dataset, report_name, merge_results=False,
                   plot_types=('success'), per_video=False, **kwargs):
-    """ Print the results for the given trackers in a formatted table
-    args:
-        trackers - List of trackers to evaluate
-        dataset - List of sequences to evaluate
-        report_name - Name of the folder in env_settings.perm_mat_path where the computed results and plots are saved
-        merge_results - If True, multiple random runs for a non-deterministic trackers are averaged
-        plot_types - List of scores to display. Can contain 'success' (prints AUC, OP50, and OP75 scores),
-                    'prec' (prints precision score), and 'norm_prec' (prints normalized precision score)
-    """
-    # Load pre-computed results
+    
+    
     eval_data = check_and_load_precomputed_results(trackers, dataset, report_name, **kwargs)
 
-    # Merge results from multiple runs
+    
     if merge_results:
         eval_data = merge_multiple_runs(eval_data)
 
@@ -531,34 +475,34 @@ def print_results_per_video(trackers, dataset, report_name, merge_results=False,
 
     scores = {}
 
-    # ********************************  Success Plot **************************************
+    
     if 'success' in plot_types:
         threshold_set_overlap = torch.tensor(eval_data['threshold_set_overlap'])
         ave_success_rate_plot_overlap = torch.tensor(eval_data['ave_success_rate_plot_overlap'])
 
-        # Index out valid sequences
+        
         auc_curve, auc = get_auc_curve(ave_success_rate_plot_overlap, valid_sequence)
         scores['AUC'] = auc
         scores['OP50'] = auc_curve[:, threshold_set_overlap == 0.50]
         scores['OP75'] = auc_curve[:, threshold_set_overlap == 0.75]
 
-    # ********************************  Precision Plot **************************************
+    
     if 'prec' in plot_types:
         ave_success_rate_plot_center = torch.tensor(eval_data['ave_success_rate_plot_center'])
 
-        # Index out valid sequences
+        
         prec_curve, prec_score = get_prec_curve(ave_success_rate_plot_center, valid_sequence)
         scores['Precision'] = prec_score
 
-    # ********************************  Norm Precision Plot *********************************
+    
     if 'norm_prec' in plot_types:
         ave_success_rate_plot_center_norm = torch.tensor(eval_data['ave_success_rate_plot_center_norm'])
 
-        # Index out valid sequences
+        
         norm_prec_curve, norm_prec_score = get_prec_curve(ave_success_rate_plot_center_norm, valid_sequence)
         scores['Norm Precision'] = norm_prec_score
 
-    # Print
+    
     tracker_disp_names = [get_tracker_display_name(trk) for trk in tracker_names]
     report_text = generate_formatted_report(tracker_disp_names, scores, table_name=report_name)
     print(report_text)
@@ -572,34 +516,34 @@ def print_results_per_video(trackers, dataset, report_name, merge_results=False,
             scores = {}
             valid_sequence = torch.tensor(eval_data['valid_sequence'], dtype=torch.bool)
 
-            # ********************************  Success Plot **************************************
+            
             if 'success' in plot_types:
                 threshold_set_overlap = torch.tensor(eval_data['threshold_set_overlap'])
                 ave_success_rate_plot_overlap = torch.tensor(eval_data['ave_success_rate_plot_overlap'])
 
-                # Index out valid sequences
+                
                 auc_curve, auc = get_auc_curve(ave_success_rate_plot_overlap, valid_sequence)
                 scores['AUC'] = auc
                 scores['OP50'] = auc_curve[:, threshold_set_overlap == 0.50]
                 scores['OP75'] = auc_curve[:, threshold_set_overlap == 0.75]
 
-            # ********************************  Precision Plot **************************************
+            
             if 'prec' in plot_types:
                 ave_success_rate_plot_center = torch.tensor(eval_data['ave_success_rate_plot_center'])
 
-                # Index out valid sequences
+                
                 prec_curve, prec_score = get_prec_curve(ave_success_rate_plot_center, valid_sequence)
                 scores['Precision'] = prec_score
 
-            # ********************************  Norm Precision Plot *********************************
+            
             if 'norm_prec' in plot_types:
                 ave_success_rate_plot_center_norm = torch.tensor(eval_data['ave_success_rate_plot_center_norm'])
 
-                # Index out valid sequences
+                
                 norm_prec_curve, norm_prec_score = get_prec_curve(ave_success_rate_plot_center_norm, valid_sequence)
                 scores['Norm Precision'] = norm_prec_score
 
-            # Print
+            
             tracker_disp_names = [get_tracker_display_name(trk) for trk in tracker_names]
             report_text = generate_formatted_report(tracker_disp_names, scores, table_name=report_name)
             print(report_text)

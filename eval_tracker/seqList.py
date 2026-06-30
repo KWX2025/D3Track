@@ -2,7 +2,7 @@
 import os
 
 def where_seq_already(result_path, prefix=""):
-    """ 检测哪些序列已经测好了 """
+    
     file_list = os.listdir(result_path)
     seq_list = []
     for item in file_list:
@@ -12,7 +12,7 @@ def where_seq_already(result_path, prefix=""):
 
 
 def seqs_intersect(seq_lists):
-    """求交集"""
+    
     seq_list = []
     for seq in seq_lists[0]:
         for i in range(1, len(seq_lists)):

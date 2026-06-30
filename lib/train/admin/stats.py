@@ -17,7 +17,7 @@ class StatValue:
 
 
 class AverageMeter(object):
-    """Computes and stores the average and current value"""
+    
     def __init__(self):
         self.clear()
         self.has_new_data = False
@@ -48,7 +48,7 @@ class AverageMeter(object):
 
 
 def topk_accuracy(output, target, topk=(1,)):
-    """Computes the precision@k for the specified values of k"""
+    
     single_input = not isinstance(topk, (tuple, list))
     if single_input:
         topk = (topk,)

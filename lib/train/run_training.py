@@ -27,22 +27,17 @@ def init_seeds(seed):
 def run_training(script_name, config_name, cudnn_benchmark=True, local_rank=-1, save_dir=None, base_seed=None,
                  use_lmdb=False, script_name_prv=None, config_name_prv=None, use_wandb=False,
                  distill=None, script_teacher=None, config_teacher=None):
-    """Run the train script.
-    args:
-        script_name: Name of emperiment in the "experiments/" folder.
-        config_name: Name of the yaml file in the "experiments/<script_name>".
-        cudnn_benchmark: Use cudnn benchmark or not (default is True).
-    """
+    
     if save_dir is None:
         print("save_dir dir is not given. Use the default dir instead.")
-    # This is needed to avoid strange crashes related to opencv
+    
     cv.setNumThreads(0)
 
     torch.backends.cudnn.benchmark = cudnn_benchmark
 
     print('script_name: {}.py  config_name: {}.yaml'.format(script_name, config_name))
 
-    '''2021.1.5 set seed for different process'''
+    
     if base_seed is not None:
         if local_rank != -1:
             init_seeds(base_seed + local_rank + 1)
@@ -85,12 +80,12 @@ def main():
     parser.add_argument('--local_rank', default=-1, type=int, help='node rank for distributed training')
     parser.add_argument('--save_dir', type=str, help='the directory to save checkpoints and logs')
     parser.add_argument('--seed', type=int, default=42, help='seed for random numbers')
-    parser.add_argument('--use_lmdb', type=int, choices=[0, 1], default=0)  # whether datasets are in lmdb format
+    parser.add_argument('--use_lmdb', type=int, choices=[0, 1], default=0)  
     parser.add_argument('--script_prv', type=str, default=None, help='Name of the train script of previous model.')
     parser.add_argument('--config_prv', type=str, default=None, help="Name of the config file of previous model.")
-    parser.add_argument('--use_wandb', type=int, choices=[0, 1], default=0)  # whether to use wandb
-    # for knowledge distillation
-    parser.add_argument('--distill', type=int, choices=[0, 1], default=0)  # whether to use knowledge distillation
+    parser.add_argument('--use_wandb', type=int, choices=[0, 1], default=0)  
+    
+    parser.add_argument('--distill', type=int, choices=[0, 1], default=0)  
     parser.add_argument('--script_teacher', type=str, help='teacher script name')
     parser.add_argument('--config_teacher', type=str, help='teacher yaml configure file name')
 
@@ -105,8 +100,8 @@ def main():
         print("Running in single GPU/CPU mode (no distributed initialization).")
         torch.cuda.set_device(0)
 
-    # torch.autograd.set_detect_anomaly(True)
-    # os.environ['CUDA_LAUNCH_BLOCKING']='1'
+    
+    
 
     run_training(args.script, args.config, cudnn_benchmark=args.cudnn_benchmark,
                  local_rank=args.local_rank, save_dir=args.save_dir, base_seed=args.seed,

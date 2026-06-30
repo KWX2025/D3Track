@@ -117,7 +117,7 @@ settings.rgbt234_path = "/path/to/RGBT234/"
 settings.gtot_path = "/path/to/GTOT/"
 ```
 
-Note: `lib/test/evaluation/lasherdataset.py` currently hard-codes `/media/ha/2T/datasets/lasher/testingset/` inside `_get_sequence_list()`. If your LasHeR path is different, either change it to use `self.base_path`, or test with `--dataset_name lashertestingset` and make sure `settings.lasher_path` in `local.py` points to the testing set.
+Note: `lib/test/evaluation/lasherdataset.py` builds sequence paths from `settings.lasher_path`. Make sure this path points to the LasHeR testing set before evaluation.
 
 ## Pretrained Weights and Configuration
 
@@ -239,7 +239,7 @@ python tracking/test.py dftrack dftrack_4b_dropmae_dftrack_tf_cc_mask.25 \
 `eval_tracker/lasher.py` evaluates generated tracking results with the `rgbt` toolkit. The current script hard-codes `result_path`, so change it to your result directory before running, for example:
 
 ```python
-result_path = "/media/ha/2T/kwx/DFTrack/output/dftrack/dftrack_4b_dropmae_dftrack_tf_cc_mask.25_ep030/lasher"
+result_path = "/path/to/DFTrack/output/dftrack/dftrack_4b_dropmae_dftrack_tf_cc_mask.25_ep030/lasher"
 ```
 
 Then run:

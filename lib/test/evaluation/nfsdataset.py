@@ -4,14 +4,7 @@ from lib.test.utils.load_text import load_text
 
 
 class NFSDataset(BaseDataset):
-    """ NFS dataset.
-    Publication:
-        Need for Speed: A Benchmark for Higher Frame Rate Object Tracking
-        H. Kiani Galoogahi, A. Fagg, C. Huang, D. Ramanan, and S.Lucey
-        ICCV, 2017
-        http://openaccess.thecvf.com/content_ICCV_2017/papers/Galoogahi_Need_for_Speed_ICCV_2017_paper.pdf
-    Download the dataset from http://ci2cv.net/nfs/index.html
-    """
+    
     def __init__(self):
         super().__init__()
         self.base_path = self.env_settings.nfs_path

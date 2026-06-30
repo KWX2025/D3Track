@@ -1,19 +1,16 @@
-from lib.utils.read_ip import get_host_ip
-
-
 class EnvironmentSettings:
     def __init__(self):
 
-        self.lmdb_dir = "/home/zhaojiacong/datasets/lmdb_dataset/"
+        self.lmdb_dir = ""
 
-        self.workspace_dir = '.'  # Base directory for saving network checkpoints.
-        self.tensorboard_dir = './tensorboard/'  # Directory for tensorboard files.
+        self.workspace_dir = '.'
+        self.tensorboard_dir = './tensorboard/'
         self.wandb_dir = './wandb/'
 
-        self.lasot_dir = '/home/liulei/Datasets/lasot/'
-        self.got10k_dir = '/home/zhuyabin/dataset1/GOT/train/'
-        self.trackingnet_dir = '/home/zhuyabin/dataset1/TrackingNet/'
-        self.coco_dir = '/home/zhuyabin/dataset1/COCO2014/'
+        self.lasot_dir = ''
+        self.got10k_dir = ''
+        self.trackingnet_dir = ''
+        self.coco_dir = ''
         self.lvis_dir = ''
         self.sbd_dir = ''
         self.imagenet_dir = ''
@@ -24,29 +21,10 @@ class EnvironmentSettings:
         self.davis_dir = ''
         self.youtubevos_dir = ''
 
-        self.rgbt210_dir = ''  # '/home/liulei/Datasets/RGBT210/'
-        self.gtot_dir = '/home/liulei/Datasets/GTOT/'
-
-        ip = get_host_ip()
-        if ip == "172.17.122.103":
-            self.lasher_dir = "/data/LasHeR/"
-            self.lasher_trainingset_dir = "/data/LasHeR/"
-            self.lasher_testingset_dir = "/data/LasHeR/"
-            self.UAV_RGBT_dir = "/data/VTUAV/"
-            self.rgbt234_dir = "/data/RGBT234/"
-        elif ip in ["210.45.88.101", "172.17.122.101"]:
-            self.lasher_dir = "/data/LasHeR/"
-            self.lasher_trainingset_dir = "/data/LasHeR/"
-            self.lasher_testingset_dir = "/data/LasHeR/"
-            self.UAV_RGBT_dir = "/data/VTUAV/"
-            self.rgbt234_dir = "/data/RGBT234/"
-        elif ip == "10.10.1.98":
-            self.lasher_dir = "/data1/Datasets/Tracking/LasHeR/"
-            self.lasher_trainingset_dir = "/data1/Datasets/Tracking/LasHeR/"
-            self.lasher_testingset_dir = "/data1/Datasets/Tracking/LasHeR/"
-            self.UAV_RGBT_dir = "/data1/Datasets/Tracking/VTUAV/"
-            self.rgbt234_dir = "/data1/Datasets/Tracking/RGBT234/"
-        else:
-            self.lasher_dir = "/media/ha/2T/datasets/lasher/"
-            self.lasher_trainingset_dir = "/media/ha/2T/datasets/lasher/trainingset/"
-            self.lasher_testingset_dir = "/media/ha/2T/datasets/lasher/testingset/"
+        self.rgbt210_dir = ''
+        self.gtot_dir = ''
+        self.lasher_dir = ''
+        self.lasher_trainingset_dir = ''
+        self.lasher_testingset_dir = ''
+        self.UAV_RGBT_dir = ''
+        self.rgbt234_dir = ''

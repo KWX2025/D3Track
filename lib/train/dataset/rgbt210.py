@@ -15,7 +15,7 @@ class RGBT210(BaseVideoDataset):
         self.root = env_settings().rgbt210_dir if root is None else root
         super().__init__('RGBT210', root, image_loader)
 
-        # video_name for each sequence
+        
         self.sequence_list = os.listdir(self.root)
 
         if data_fraction is not None:
@@ -49,8 +49,8 @@ class RGBT210(BaseVideoDataset):
         seq_path = os.path.join(self.root, seq_name)
         frame_list_v = [self._get_frame_v(seq_path, f) for f in frame_ids]
         frame_list_i = [self._get_frame_i(seq_path, f) for f in frame_ids]
-        frame_list  = frame_list_v + frame_list_i # 6
-        #print('get_frames frame_list', len(frame_list))
+        frame_list  = frame_list_v + frame_list_i 
+        
         if anno is None:
             anno = self.get_sequence_info(seq_path)
 
@@ -64,5 +64,5 @@ class RGBT210(BaseVideoDataset):
                                    'root_class': None,
                                    'motion_adverb': None})
 
-        #return frame_list_v, frame_list_i, anno_frames, object_meta
+        
         return frame_list, anno_frames, object_meta

@@ -9,7 +9,7 @@ class VTUAVDataset(BaseDataset):
         super().__init__()
         self.base_path = self.env_settings.vtuav_path
         self.st_path = os.path.join(self.base_path, "test_ST")
-        # self.st_path = "/home/zhaojiacong/datasets/ST_val_split.txt"
+        
         self.sequence_list = self._get_sequence_list()
 
     def get_sequence_list(self):
@@ -24,7 +24,7 @@ class VTUAVDataset(BaseDataset):
         
         img_list_i = sorted([p for p in os.listdir(os.path.join(sequence_path, 'ir')) if os.path.splitext(p)[1] in ['.jpg','.png','.bmp']])
         frames_i = [os.path.join(sequence_path, 'ir', img) for img in img_list_i]
-        # Convert gt
+        
         if ground_truth_rect.shape[1] > 4:
             gt_x_all = ground_truth_rect[:, [0, 2, 4, 6]]
             gt_y_all = ground_truth_rect[:, [1, 3, 5, 7]]

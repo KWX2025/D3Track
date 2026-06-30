@@ -42,14 +42,14 @@ def decode_json(lmdb_fname, key_name):
 
 
 if __name__ == "__main__":
-    lmdb_fname = "/data/sda/v-yanbi/iccv21/LittleBoy_clean/data/got10k_lmdb"
-    '''Decode image'''
-    # key_name = "test/GOT-10k_Test_000001/00000001.jpg"
-    # img = decode_img(lmdb_fname, key_name)
-    # cv2.imwrite("001.jpg", img)
-    '''Decode str'''
-    # key_name = "test/list.txt"
-    # key_name = "train/GOT-10k_Train_000001/groundtruth.txt"
+    lmdb_fname = ""
+    
+    
+    
+    
+    
+    
+    
     key_name = "train/GOT-10k_Train_000001/absence.label"
     str_ = decode_str(lmdb_fname, key_name)
     print(str_)

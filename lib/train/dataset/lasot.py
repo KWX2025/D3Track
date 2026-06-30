@@ -12,33 +12,14 @@ from lib.train.admin import env_settings
 
 
 class Lasot(BaseVideoDataset):
-    """ LaSOT dataset.
-
-    Publication:
-        LaSOT: A High-quality Benchmark for Large-scale Single Object Tracking
-        Heng Fan, Liting Lin, Fan Yang, Peng Chu, Ge Deng, Sijia Yu, Hexin Bai, Yong Xu, Chunyuan Liao and Haibin Ling
-        CVPR, 2019
-        https://arxiv.org/pdf/1809.07845.pdf
-
-    Download the dataset from https://cis.temple.edu/lasot/download.html
-    """
+    
 
     def __init__(self, root=None, image_loader=jpeg4py_loader, vid_ids=None, split=None, data_fraction=None):
-        """
-        args:
-            root - path to the lasot dataset.
-            image_loader (jpeg4py_loader) -  The function to read the images. jpeg4py (https://github.com/ajkxyz/jpeg4py)
-                                            is used by default.
-            vid_ids - List containing the ids of the videos (1 - 20) used for training. If vid_ids = [1, 3, 5], then the
-                    videos with subscripts -1, -3, and -5 from each class will be used for training.
-            split - If split='train', the official train split (protocol-II) is used for training. Note: Only one of
-                    vid_ids or split option can be used at a time.
-            data_fraction - Fraction of dataset to be used. The complete dataset is used by default
-        """
+        
         root = env_settings().lasot_dir if root is None else root
         super().__init__('LaSOT', root, image_loader)
 
-        # Keep a list of all classes
+        
         self.class_list = [f for f in os.listdir(self.root)]
         self.class_to_id = {cls_name: cls_id for cls_id, cls_name in enumerate(self.class_list)}
 
@@ -58,7 +39,7 @@ class Lasot(BaseVideoDataset):
                 file_path = os.path.join(ltr_path, 'data_specs', 'lasot_train_split.txt')
             else:
                 raise ValueError('Unknown split name.')
-            # sequence_list = pandas.read_csv(file_path, header=None, squeeze=True).values.tolist()
+            
             sequence_list = pandas.read_csv(file_path, header=None).squeeze("columns").values.tolist()
         elif vid_ids is not None:
             sequence_list = [c+'-'+str(v) for c in self.class_list for v in vid_ids]
@@ -102,7 +83,7 @@ class Lasot(BaseVideoDataset):
         return torch.tensor(gt)
 
     def _read_target_visible(self, seq_path):
-        # Read full occlusion and out_of_view
+        
         occlusion_file = os.path.join(seq_path, "full_occlusion.txt")
         out_of_view_file = os.path.join(seq_path, "out_of_view.txt")
 
@@ -132,7 +113,7 @@ class Lasot(BaseVideoDataset):
         return {'bbox': bbox, 'valid': valid, 'visible': visible}
 
     def _get_frame_path(self, seq_path, frame_id):
-        return os.path.join(seq_path, 'img', '{:08}.jpg'.format(frame_id+1))    # frames start from 1
+        return os.path.join(seq_path, 'img', '{:08}.jpg'.format(frame_id+1))    
 
     def _get_frame(self, seq_path, frame_id):
         return self.image_loader(self._get_frame_path(seq_path, frame_id))

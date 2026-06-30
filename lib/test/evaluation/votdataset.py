@@ -7,18 +7,7 @@ from lib.test.evaluation.data import SequenceList, BaseDataset, Sequence
 
 
 class VOTDataset(BaseDataset):
-    """
-    VOT2018 dataset
-
-    Publication:
-        The sixth Visual Object Tracking VOT2018 challenge results.
-        Matej Kristan, Ales Leonardis, Jiri Matas, Michael Felsberg, Roman Pfugfelder, Luka Cehovin Zajc, Tomas Vojir,
-        Goutam Bhat, Alan Lukezic et al.
-        ECCV, 2018
-        https://prints.vicos.si/publications/365
-
-    Download the dataset from http://www.votchallenge.net/vot2018/dataset.html
-    """
+    
     def __init__(self, year=18):
         super().__init__()
         self.year = year
@@ -53,7 +42,7 @@ class VOTDataset(BaseDataset):
                       sequence_path=sequence_path, frame=frame_num, nz=nz, ext=ext)
                       for frame_num in range(start_frame, end_frame+1)]
 
-            # Convert gt
+            
             if ground_truth_rect.shape[1] > 4:
                 gt_x_all = ground_truth_rect[:, [0, 2, 4, 6]]
                 gt_y_all = ground_truth_rect[:, [1, 3, 5, 7]]
@@ -278,19 +267,17 @@ class VOTDataset(BaseDataset):
 
 
 def parse(string):
-    """
-    parse string to the appropriate region format and return region object
-    """
+    
     from vot.region.shapes import Rectangle, Polygon, Mask
 
 
     if string[0] == 'm':
-        # input is a mask - decode it
+        
         m_, offset_, region = create_mask_from_string(string[1:].split(','))
-        # return Mask(m_, offset=offset_)
+        
         return region
     else:
-        # input is not a mask - check if special, rectangle or polygon
+        
         raise NotImplementedError
     print('Unknown region format.')
     return None
@@ -304,24 +291,19 @@ def read_file(fp: Union[str, TextIO]):
         lines = fp.readlines()
 
     regions = []
-    # iterate over all lines in the file
+    
     for i, line in enumerate(lines):
         regions.append(parse(line.strip()))
     return regions
 
 
 def create_mask_from_string(mask_encoding):
-    """
-    mask_encoding: a string in the following format: x0, y0, w, h, RLE
-    output: mask, offset
-    mask: 2-D binary mask, size defined in the mask encoding
-    offset: (x, y) offset of the mask in the image coordinates
-    """
+    
     elements = [int(el) for el in mask_encoding]
     tl_x, tl_y, region_w, region_h = elements[:4]
     rle = np.array([el for el in elements[4:]], dtype=np.int32)
 
-    # create mask from RLE within target region
+    
     mask = rle_to_mask(rle, region_w, region_h)
     region = [tl_x, tl_y, region_w, region_h]
 
@@ -329,21 +311,15 @@ def create_mask_from_string(mask_encoding):
 
 @jit(nopython=True)
 def rle_to_mask(rle, width, height):
-    """
-    rle: input rle mask encoding
-    each evenly-indexed element represents number of consecutive 0s
-    each oddly indexed element represents number of consecutive 1s
-    width and height are dimensions of the mask
-    output: 2-D binary mask
-    """
-    # allocate list of zeros
+    
+    
     v = [0] * (width * height)
 
-    # set id of the last different element to the beginning of the vector
+    
     idx_ = 0
     for i in range(len(rle)):
         if i % 2 != 0:
-            # write as many 1s as RLE says (zeros are already in the vector)
+            
             for j in range(rle[i]):
                 v[idx_+j] = 1
         idx_ += rle[i]

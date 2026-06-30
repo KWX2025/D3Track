@@ -4,16 +4,7 @@ from lib.test.utils.load_text import load_text
 
 
 class LaSOTExtensionSubsetDataset(BaseDataset):
-    """
-    LaSOT test set consisting of 280 videos (see Protocol-II in the LaSOT paper)
-    Publication:
-        LaSOT: A High-quality Large-scale Single Object Tracking Benchmark
-        Heng Fan, Hexin Bai, Liting Lin, Fan Yang, Peng Chu, Ge Deng, Sijia Yu, Harshit, Mingzhen Huang, Juehuan Liu,
-        Yong Xu, Chunyuan Liao, Lin Yuan, Haibin Ling
-        IJCV, 2020
-        https://arxiv.org/pdf/2009.03465.pdf
-    Download the dataset from http://vision.cs.stonybrook.edu/~lasot/download.html
-    """
+    
     def __init__(self):
         super().__init__()
         self.base_path = self.env_settings.lasot_extension_subset_path
@@ -38,7 +29,7 @@ class LaSOTExtensionSubsetDataset(BaseDataset):
 
         occlusion_label_path = '{}/{}/{}/full_occlusion.txt'.format(self.base_path, class_name, sequence_name)
 
-        # NOTE: pandas backed seems super super slow for loading occlusion/oov masks
+        
         full_occlusion = load_text(str(occlusion_label_path), delimiter=',', dtype=np.float64, backend='numpy')
 
         out_of_view_label_path = '{}/{}/{}/out_of_view.txt'.format(self.base_path, class_name, sequence_name)

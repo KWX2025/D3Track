@@ -1,4 +1,4 @@
-# lib/train/trainers/ltr_trainer.py
+
 import os
 import datetime
 from collections import OrderedDict
@@ -20,7 +20,7 @@ def _unwrap(m):
 
 
 def _get_model_and_igf(actor_net):
-    """从 actor.net 中拿到 igf 模块（门控）。按常见命名自动匹配：igf_module / igf / gate"""
+    
     mod = _unwrap(actor_net)
     igf = getattr(mod, "igf_module", None) or getattr(mod, "igf", None) or getattr(mod, "gate", None)
     return mod, igf
@@ -32,10 +32,10 @@ class LTRTrainer(BaseTrainer):
 
         self._set_default_settings()
 
-        # stats
+        
         self.stats = OrderedDict({loader.name: None for loader in self.loaders})
 
-        # tb / wandb
+        
         self.wandb_writer = None
         if settings.local_rank in [-1, 0]:
             tensorboard_writer_dir = os.path.join(self.settings.env.tensorboard_dir, self.settings.project_path)
@@ -55,17 +55,17 @@ class LTRTrainer(BaseTrainer):
         if use_amp:
             self.scaler = GradScaler()
 
-        # ---------------- IGF 强制解冻 + 自动补进优化器（静默执行） ----------------
+        
         try:
             model = getattr(self.actor, 'net', None)
             if model is not None:
                 mod, igf = _get_model_and_igf(model)
                 if igf is not None:
-                    # 解冻 IGF
+                    
                     for _, p in igf.named_parameters():
                         if not p.requires_grad:
                             p.requires_grad = True
-                    # 确保 IGF 参数均在优化器中
+                    
                     igf_params = [p for _, p in igf.named_parameters() if p.requires_grad]
                     ids_in_opt = set(id(p) for g in self.optimizer.param_groups for p in g['params'])
                     missing = [p for p in igf_params if id(p) not in ids_in_opt]
@@ -76,14 +76,14 @@ class LTRTrainer(BaseTrainer):
         except Exception:
             pass
 
-        # ---------------- Projector 自动解冻 + 自动补进优化器（关键） ----------------
-        self._proj_fixed = False  # 首次进入训练 loader 时补齐
-        # 可选：是否打印一次状态
+        
+        self._proj_fixed = False  
+        
         self._proj_debug = getattr(settings, 'proj_debug', False)
 
-    # ===== Projector helpers =====
+    
     def _proj_modules(self):
-        """返回 {'align_rgb2tir': mod, 'align_tir2rgb': mod}（若存在）"""
+        
         net = _unwrap(self.actor.net)
         mods = OrderedDict()
         for name in ("align_rgb2tir", "align_tir2rgb"):
@@ -93,18 +93,18 @@ class LTRTrainer(BaseTrainer):
         return mods
 
     def _ensure_projector_trainable(self):
-        """解冻 projector 并确保加入 optimizer：lr=base×5, wd=0。"""
+        
         mods = self._proj_modules()
         if not mods:
             return
-        # 解冻
+        
         proj_params = []
         for _, m in mods.items():
             for p in m.parameters():
                 if not p.requires_grad:
                     p.requires_grad = True
                 proj_params.append(p)
-        # 补进 optimizer
+        
         ids_in_opt = {id(p) for g in self.optimizer.param_groups for p in g['params']}
         to_add = [p for p in proj_params if id(p) not in ids_in_opt]
         if to_add:
@@ -116,7 +116,7 @@ class LTRTrainer(BaseTrainer):
             if self._proj_debug and self.settings.local_rank in [-1, 0]:
                 print("[PROJ] projector params already in optimizer.", flush=True)
 
-    # ============================
+    
 
     def _set_default_settings(self):
         default = {'print_interval': 10,
@@ -127,14 +127,14 @@ class LTRTrainer(BaseTrainer):
                 setattr(self.settings, param, default_value)
 
     def cycle_dataset(self, loader):
-        """Do a cycle of training or validation."""
+        
 
         self.actor.train(loader.training)
         torch.set_grad_enabled(loader.training)
 
         self._init_timing()
 
-        # —— 首次进入训练 loader：确保 projector 可训练并入 optimizer ——
+        
         if loader.training and not self._proj_fixed:
             try:
                 self._ensure_projector_trainable()
@@ -152,14 +152,14 @@ class LTRTrainer(BaseTrainer):
             data['epoch'] = self.epoch
             data['settings'] = self.settings
 
-            # forward
+            
             if not self.use_amp:
                 loss, stats = self.actor(data)
             else:
                 with autocast():
                     loss, stats = self.actor(data)
 
-            # backward & step
+            
             if loader.training:
                 if clean_grad:
                     self.optimizer.zero_grad()
@@ -182,7 +182,7 @@ class LTRTrainer(BaseTrainer):
                     self.scaler.step(self.optimizer)
                     self.scaler.update()
 
-            # stats
+            
             batch_size = data['template_images'].shape[loader.stack_dim]
             self._update_stats(stats, batch_size, loader)
 
@@ -193,7 +193,7 @@ class LTRTrainer(BaseTrainer):
                 if self.settings.local_rank in [-1, 0]:
                     self.wandb_writer.write_log(self.stats, self.epoch)
 
-        # epoch ETA
+        
         epoch_time = self.prev_time - self.start_time
         print("Epoch Time: " + str(datetime.timedelta(seconds=epoch_time)))
         print("Avg Data Time: %.5f" % (self.avg_date_time / self.num_frames * batch_size))
@@ -201,7 +201,7 @@ class LTRTrainer(BaseTrainer):
         print("Avg Forward Time: %.5f" % (self.avg_forward_time / self.num_frames * batch_size))
 
     def train_epoch(self):
-        """Do one epoch for each loader."""
+        
         for loader in self.loaders:
             if self.epoch % loader.epoch_interval == 0:
                 if isinstance(loader.sampler, DistributedSampler):
